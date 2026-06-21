@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AXIOM — Find the rule. Trust nothing else.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   AXIOM — DESIGN TOKENS
+   ============================================================ */
+:root{
+  --bg-base:#0A0D12;
+  --surface:#11151C;
+  --surface-elevated:#1B212B;
+  --surface-border:#2A3140;
+  --text-primary:#E8EDF2;
+  --text-muted:#8A93A3;
+  --accent:#4CC9F0;
+  --accent-soft:rgba(76,201,240,0.15);
+  --probe:#8B5CF6;
+  --probe-soft:rgba(139,92,246,0.15);
+  --success:#2EC4B6;
+  --success-soft:rgba(46,196,182,0.18);
+  --error:#FF5A5F;
+  --error-soft:rgba(255,90,95,0.18);
+  --warning:#F4A261;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --font-body:'Inter', sans-serif;
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--bg-base);
+  color:var(--text-primary);
+  font-family:var(--font-body);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+#app{ min-height:100vh; display:flex; flex-direction:column; }
+button{ font-family:inherit; cursor:pointer; }
+input{ font-family:inherit; }
+::selection{ background:var(--accent-soft); }
+a{ color:var(--accent); }
+
+.hidden{ display:none !important; }
+
+/* Palette swatch colors */
+.pc-1{ background:#F94144; } .pc-2{ background:#F3722C; } .pc-3{ background:#F9C74F; }
+.pc-4{ background:#90BE6D; } .pc-5{ background:#43AA8B; } .pc-6{ background:#577590; }
+
+/* ============================================================
+   GENERIC LAYOUT
+   ============================================================ */
+.screen{
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  width:100%; padding:24px 16px 48px; animation:screenIn 280ms ease-out;
+}
+@keyframes screenIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+
+.section-label{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--text-muted); margin-bottom:8px;
+}
+
+.btn{
+  font-family:var(--font-display); font-weight:600; font-size:14px; letter-spacing:0.02em;
+  padding:12px 22px; border-radius:10px; border:1px solid transparent; transition:all 180ms ease-out;
+  color:var(--text-primary);
+}
+.btn:active{ transform:scale(0.97); }
+.btn-submit{ background:var(--accent); color:#06131A; box-shadow:0 4px 16px rgba(76,201,240,0.25); }
+.btn-submit:hover{ filter:brightness(1.08); }
+.btn-submit:disabled{ opacity:0.4; cursor:not-allowed; filter:none; }
+.btn-probe{ background:transparent; color:var(--probe); border-color:var(--probe); }
+.btn-probe:hover{ background:var(--probe-soft); }
+.btn-probe:disabled{ opacity:0.35; cursor:not-allowed; }
+.btn-secondary{ background:var(--surface-elevated); color:var(--text-primary); border-color:var(--surface-border); }
+.btn-secondary:hover{ border-color:var(--accent); }
+.btn-large{ padding:16px 34px; font-size:16px; }
+.text-btn{ background:transparent; border:none; color:var(--text-muted); font-family:var(--font-body); font-size:13px; text-decoration:underline; }
+.text-btn:hover{ color:var(--text-primary); }
+.icon-btn{ background:transparent; border:1px solid var(--surface-border); border-radius:8px; color:var(--text-primary); font-size:14px; padding:6px 9px; }
+.icon-btn:hover{ border-color:var(--accent); }
+
+/* ============================================================
+   TITLE SCREEN
+   ============================================================ */
+.title-screen{ justify-content:center; align-items:center; text-align:center; }
+.title-wordmark{
+  font-family:var(--font-display); font-weight:700; font-size:clamp(48px,11vw,96px);
+  letter-spacing:0.06em; color:var(--text-primary); margin:0;
+  text-shadow:0 0 40px rgba(76,201,240,0.18);
+}
+.title-tagline{
+  font-family:var(--font-mono); color:var(--accent); font-size:14px; letter-spacing:0.08em;
+  margin-top:6px; margin-bottom:40px;
+}
+.title-grid-decoration{
+  display:grid; grid-template-columns:repeat(3,28px); grid-template-rows:repeat(3,28px);
+  gap:5px; margin-bottom:44px; opacity:0.9;
+}
+.title-grid-decoration .dcell{ border-radius:5px; animation:dcellShift 5s ease-in-out infinite; }
+.title-actions{ display:flex; flex-direction:column; gap:14px; align-items:center; }
+.title-best{ font-family:var(--font-mono); color:var(--text-muted); font-size:13px; margin-top:18px; }
+.footer-note{
+  font-family:var(--font-body); color:var(--text-muted); font-size:12px; max-width:440px;
+  margin-top:56px; line-height:1.6; opacity:0.75;
+}
+@keyframes dcellShift{ 0%,100%{ opacity:0.55; } 50%{ opacity:1; } }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(5,7,10,0.78); backdrop-filter:blur(3px);
+  display:flex; align-items:center; justify-content:center; z-index:100; padding:16px;
+  animation:fadeIn 160ms ease-out;
+}
+@keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
+.modal{
+  background:var(--surface); border:1px solid var(--surface-border); border-radius:16px;
+  padding:26px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5);
+}
+.modal-title{ font-family:var(--font-display); font-size:19px; font-weight:600; margin-bottom:6px; }
+.modal-sub{ font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:18px; }
+.modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+.probe-modal .modal-title{ color:var(--probe); }
+.probe-result{ margin-top:18px; padding-top:18px; border-top:1px solid var(--surface-border); }
+.howitworks-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:14px; }
+.howitworks-list li{ font-size:13.5px; line-height:1.55; color:var(--text-primary); padding-left:26px; position:relative; }
+.howitworks-list li .num{
+  position:absolute; left:0; top:0; font-family:var(--font-mono); color:var(--accent); font-size:12px;
+}
+
+/* ============================================================
+   TOP BAR (puzzle screen)
+   ============================================================ */
+.puzzle-screen{ padding-top:0; max-width:880px; margin:0 auto; width:100%; }
+.topbar{
+  width:100%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  padding:14px 16px; background:var(--surface); border-bottom:1px solid var(--surface-border);
+  position:sticky; top:0; z-index:10;
+}
+.topbar-left{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.tier-name{ font-family:var(--font-display); font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.level-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); }
+.timer{
+  font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--text-primary);
+  min-width:62px; text-align:center; transition:color 200ms;
+}
+.timer.timer-warning{ color:var(--warning); }
+.timer.timer-critical{ color:var(--error); animation:timerPulse 0.6s ease-in-out infinite; }
+@keyframes timerPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
+.topbar-right{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.lives{ display:flex; gap:5px; }
+.life-dot{ width:9px; height:9px; border-radius:50%; background:var(--accent); transition:background 200ms,transform 200ms; }
+.life-dot.lost{ background:var(--surface-border); transform:scale(0.8); }
+.streak{ font-family:var(--font-mono); font-size:12px; color:var(--text-muted); white-space:nowrap; }
+.score{ font-family:var(--font-mono); font-size:15px; font-weight:700; color:var(--accent); white-space:nowrap; }
+
+/* ============================================================
+   PUZZLE BODY
+   ============================================================ */
+.puzzle-body{ width:100%; padding:24px 16px 8px; display:flex; flex-direction:column; gap:28px; align-items:center; }
+.examples-section{ width:100%; max-width:760px; }
+.examples-row{ display:flex; flex-wrap:wrap; gap:22px; justify-content:center; }
+.example-pair{ display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--surface-border); border-radius:12px; padding:14px; }
+.mini-grid-block{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.mini-arrow{ color:var(--accent); font-size:20px; font-family:var(--font-mono); }
+.flash-note{ font-family:var(--font-mono); font-size:12px; color:var(--warning); text-align:center; margin-top:10px; }
+
+.test-section{ width:100%; max-width:760px; display:flex; flex-direction:column; align-items:center; gap:22px; }
+.test-grids{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; justify-content:center; }
+.grid-block{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.arrow-glyph{ font-family:var(--font-mono); font-size:24px; color:var(--accent); }
+
+.grid-wrap{ display:flex; justify-content:center; }
+.grid{
+  display:grid; gap:6px; background:var(--surface); padding:10px; border-radius:12px;
+  border:1px solid var(--surface-border); transition:box-shadow 220ms, border-color 220ms;
+  width:min(260px,68vw); aspect-ratio:1/1;
+}
+.grid.grid-editable{ border-color:var(--surface-border); }
+.cell{
+  border-radius:6px; border:1px solid var(--surface-border); transition:transform 150ms ease-out, box-shadow 150ms ease-out, background 150ms;
+  width:100%; height:100%;
+}
+.grid-editable .cell{ cursor:pointer; }
+.grid-editable .cell:hover{ transform:scale(1.05); box-shadow:0 0 0 2px rgba(76,201,240,0.35); }
+.cell.cell-empty{ background:var(--surface-elevated); }
+.cell.cell-cursor{ box-shadow:0 0 0 2px var(--accent); transform:scale(1.05); z-index:2; }
+.cell.cell-pulse{ transform:scale(1.12); }
+@keyframes shake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 50%{ transform:translateX(4px); } 75%{ transform:translateX(-3px); } }
+.grid.grid-error{ animation:shake 0.36s ease-in-out 2; box-shadow:0 0 0 2px var(--error); border-color:var(--error); }
+.grid.grid-success{ box-shadow:0 0 0 2px var(--success); border-color:var(--success); }
+
+.palette-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.swatch{
+  width:38px; height:38px; border-radius:9px; border:2px solid transparent; transition:transform 150ms, border-color 150ms;
+  position:relative;
+}
+.swatch:hover{ transform:translateY(-2px); }
+.swatch-selected{ border-color:var(--text-primary); box-shadow:0 0 0 3px rgba(232,237,242,0.18); }
+.swatch-eraser{ background:var(--surface-elevated); color:var(--text-muted); font-size:14px; border:2px dashed var(--surface-border); display:flex; align-items:center; justify-content:center; }
+.swatch-eraser.swatch-selected{ border-color:var(--text-primary); border-style:solid; }
+
+.actions-row{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:center; }
+.probe-token-count{ font-family:var(--font-mono); }
+
+.toast{
+  position:fixed; top:18px; left:50%; transform:translateX(-50%) translateY(-12px); opacity:0;
+  padding:10px 20px; border-radius:10px; font-family:var(--font-mono); font-weight:700; font-size:14px;
+  z-index:200; transition:opacity 220ms, transform 220ms; pointer-events:none;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.toast-success{ background:var(--success-soft); color:var(--success); border:1px solid var(--success); }
+.toast.toast-error{ background:var(--error-soft); color:var(--error); border:1px solid var(--error); }
+
+.tutorial-banner{
+  width:100%; max-width:760px; background:var(--accent-soft); border:1px solid var(--accent);
+  border-radius:12px; padding:14px 18px; font-size:13.5px; line-height:1.6; color:var(--text-primary);
+  display:flex; flex-direction:column; gap:6px;
+}
+.tutorial-banner strong{ color:var(--accent); font-family:var(--font-display); }
+
+/* ============================================================
+   INTERSTITIAL / TIER COMPLETE / CRUCIBLE GATE
+   ============================================================ */
+.interstitial-screen{ justify-content:center; align-items:center; text-align:center; }
+.interstitial-card{
+  background:var(--surface); border:1px solid var(--surface-border); border-radius:18px;
+  padding:42px 36px; max-width:440px; width:100%; position:relative; overflow:hidden;
+}
+.interstitial-eyebrow{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; color:var(--text-muted); text-transform:uppercase; }
+.interstitial-title{ font-family:var(--font-display); font-size:28px; font-weight:700; margin:8px 0 18px; }
+.interstitial-stats{ display:flex; justify-content:center; gap:28px; margin-bottom:26px; }
+.istat{ display:flex; flex-direction:column; gap:2px; }
+.istat-value{ font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--accent); }
+.istat-label{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; }
+.burst-particle{ position:absolute; border-radius:50%; pointer-events:none; animation:burstOut 800ms ease-out forwards; }
+@keyframes burstOut{ from{ opacity:1; transform:translate(0,0) scale(1); } to{ opacity:0; transform:var(--end-transform) scale(0.3); } }
+
+/* ============================================================
+   PROFILE SCREEN
+   ============================================================ */
+.profile-screen{ align-items:center; }
+.profile-card{ width:100%; max-width:560px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+.profile-rank{ font-family:var(--font-display); font-size:14px; letter-spacing:0.1em; text-transform:uppercase; color:var(--probe); }
+.profile-score{ font-family:var(--font-mono); font-size:42px; font-weight:700; color:var(--accent); }
+.profile-table{ width:100%; border-collapse:collapse; font-size:13px; }
+.profile-table th{ text-align:left; font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); padding:8px 10px; border-bottom:1px solid var(--surface-border); }
+.profile-table td{ padding:9px 10px; border-bottom:1px solid var(--surface-border); font-family:var(--font-body); }
+.profile-table tr:last-child td{ border-bottom:none; }
+.profile-meta{ font-family:var(--font-mono); font-size:12px; color:var(--text-muted); text-align:center; }
+.save-row{ display:flex; gap:10px; width:100%; }
+.save-row input{
+  flex:1; background:var(--surface-elevated); border:1px solid var(--surface-border); border-radius:10px;
+  color:var(--text-primary); padding:11px 14px; font-family:var(--font-mono); letter-spacing:0.08em; text-transform:uppercase;
+}
+.save-row input:focus{ outline:none; border-color:var(--accent); }
+.profile-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.disclaimer{ font-size:11.5px; color:var(--text-muted); text-align:center; line-height:1.6; max-width:440px; opacity:0.8; margin-top:6px; }
+
+/* ============================================================
+   LEADERBOARD
+   ============================================================ */
+.leaderboard-screen{ align-items:center; }
+.leaderboard-table{ width:100%; max-width:480px; border-collapse:collapse; }
+.leaderboard-table th{ text-align:left; font-family:var(--font-mono); font-size:10px; text-transform:uppercase; color:var(--text-muted); padding:8px 10px; border-bottom:1px solid var(--surface-border); }
+.leaderboard-table td{ padding:10px; border-bottom:1px solid var(--surface-border); font-size:13.5px; }
+.leaderboard-table td.lb-rank{ font-family:var(--font-mono); color:var(--text-muted); width:28px; }
+.leaderboard-table td.lb-score{ font-family:var(--font-mono); font-weight:700; color:var(--accent); text-align:right; }
+.lb-empty{ color:var(--text-muted); font-size:13px; padding:30px 0; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:560px){
+  .title-wordmark{ font-size:44px; }
+  .topbar{ padding:10px 12px; }
+  .timer{ font-size:18px; }
+  .puzzle-body{ padding:18px 10px 8px; gap:20px; }
+  .grid{ width:min(220px,72vw); }
+  .example-pair{ padding:10px; gap:6px; }
+  .examples-row{ gap:12px; }
+  .swatch{ width:32px; height:32px; }
+  .interstitial-card{ padding:30px 22px; }
+  .profile-score{ font-size:32px; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   SECTION 1 — CONFIG / CONSTANTS
+   ============================================================ */
+const PALETTE = ['#F94144','#F3722C','#F9C74F','#90BE6D','#43AA8B','#577590'];
+
+const TIER_CONFIGS = [
+  { idx:0, name:'Onboarding',            sizeRange:[3,3], paletteRange:[2,2], examplesRange:[2,2], timeLimit:null, puzzleCount:1,  category:'Direct' },
+  { idx:1, name:'Direct Transforms',     sizeRange:[3,3], paletteRange:[2,2], examplesRange:[2,2], timeLimit:null, puzzleCount:5,  category:'Direct' },
+  { idx:2, name:'Composite Transforms',  sizeRange:[4,4], paletteRange:[3,3], examplesRange:[2,2], timeLimit:60,   puzzleCount:7,  category:'Composite' },
+  { idx:3, name:'Conditional Logic',     sizeRange:[5,5], paletteRange:[4,4], examplesRange:[2,3], timeLimit:45,   puzzleCount:8,  category:'Conditional' },
+  { idx:4, name:'Memory Flash',          sizeRange:[4,5], paletteRange:[3,4], examplesRange:[2,2], timeLimit:40,   puzzleCount:8,  category:'Memory', memoryFlash:true, flashMs:4000 },
+  { idx:5, name:'Active Inference',      sizeRange:[5,5], paletteRange:[4,4], examplesRange:[1,1], timeLimit:50,   puzzleCount:8,  category:'Probe', probes:3 },
+  { idx:6, name:'Decoy & Revision',      sizeRange:[5,5], paletteRange:[4,5], examplesRange:[2,2], timeLimit:30,   puzzleCount:8,  category:'Decoy', decoy:true },
+  { idx:7, name:'Compound Chains',       sizeRange:[6,7], paletteRange:[5,6], examplesRange:[2,2], timeLimit:30,   puzzleCount:10, category:'Compound' },
+];
+
+const BASE_POINTS = { 1:100, 2:150, 3:200, 4:250, 5:300, 6:350, 7:450, 8:500 };
+
+const RANKS = [
+  { min:25000, name:'AXIOM' },
+  { min:15000, name:'Virtuoso' },
+  { min:7000,  name:'Strategist' },
+  { min:3000,  name:'Analyst' },
+  { min:1000,  name:'Apprentice' },
+  { min:0,     name:'Novice' },
+];
+
+const PROFILE_CATEGORIES = ['Direct','Composite','Conditional','Memory','Probe','Decoy','Compound'];
+
+/* ============================================================
+   SECTION 2 — UTILITIES
+   ============================================================ */
+function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function cloneGrid(grid){ return grid.map(row=>row.slice()); }
+
+function makeGrid(size, fill){
+  const g=[];
+  for(let i=0;i<size;i++){ g.push(new Array(size).fill(fill)); }
+  return g;
+}
+
+function randomGrid(size, paletteCount){
+  const g=[];
+  for(let i=0;i<size;i++){
+    const row=[];
+    for(let j=0;j<size;j++){ row.push(randInt(1,paletteCount)); }
+    g.push(row);
+  }
+  return g;
+}
+
+function gridsEqual(a,b){
+  if(!a || !b) return false;
+  if(a.length!==b.length) return false;
+  for(let i=0;i<a.length;i++){
+    if(a[i].length!==b[i].length) return false;
+    for(let j=0;j<a[i].length;j++){ if(a[i][j]!==b[i][j]) return false; }
+  }
+  return true;
+}
+
+function countColor(grid, c){
+  let n=0;
+  for(const row of grid){ for(const v of row){ if(v===c) n++; } }
+  return n;
+}
+
+function connectedComponents(grid){
+  const R=grid.length, C=grid[0].length;
+  const seen=Array.from({length:R},()=>new Array(C).fill(false));
+  const comps=[];
+  for(let i=0;i<R;i++){
+    for(let j=0;j<C;j++){
+      if(seen[i][j]) continue;
+      const color=grid[i][j];
+      const stack=[[i,j]]; seen[i][j]=true; const cells=[];
+      while(stack.length){
+        const [r,c]=stack.pop(); cells.push([r,c]);
+        const neigh=[[r-1,c],[r+1,c],[r,c-1],[r,c+1]];
+        for(const [nr,nc] of neigh){
+          if(nr>=0 && nr<R && nc>=0 && nc<C && !seen[nr][nc] && grid[nr][nc]===color){
+            seen[nr][nc]=true; stack.push([nr,nc]);
+          }
+        }
+      }
+      comps.push({color, cells});
+    }
+  }
+  return comps;
+}
+
+function escapeHtml(str){
+  const d=document.createElement('div');
+  d.textContent = str==null ? '' : String(str);
+  return d.innerHTML;
+}
+
+function formatTime(seconds){
+  return Math.max(0, Math.ceil(seconds)) + 's';
+}
+
+/* ============================================================
+   SECTION 3 — RULE ENGINE (composable primitive transforms)
+   ============================================================ */
+const RULES = {
+
+  mirrorH:{
+    apply(grid){ return grid.map(row=>row.slice().reverse()); },
+    randomParams(){ return {}; },
+    validate(grid, params, ctx){ return !gridsEqual(RULES.mirrorH.apply(grid,params,ctx), grid); }
+  },
+
+  mirrorV:{
+    apply(grid){ return grid.slice().reverse().map(row=>row.slice()); },
+    randomParams(){ return {}; },
+    validate(grid, params, ctx){ return !gridsEqual(RULES.mirrorV.apply(grid,params,ctx), grid); }
+  },
+
+  rotate90:{
+    apply(grid){
+      const n=grid.length; const out=makeGrid(n,0);
+      for(let i=0;i<n;i++){ for(let j=0;j<n;j++){ out[j][n-1-i]=grid[i][j]; } }
+      return out;
+    },
+    randomParams(){ return {}; },
+    validate(grid, params, ctx){ return !gridsEqual(RULES.rotate90.apply(grid,params,ctx), grid); }
+  },
+
+  rotate180:{
+    apply(grid){
+      const n=grid.length; const out=makeGrid(n,0);
+      for(let i=0;i<n;i++){ for(let j=0;j<n;j++){ out[n-1-i][n-1-j]=grid[i][j]; } }
+      return out;
+    },
+    randomParams(){ return {}; },
+    validate(grid, params, ctx){ return !gridsEqual(RULES.rotate180.apply(grid,params,ctx), grid); }
+  },
+
+  invert:{
+    apply(grid, params, ctx){
+      const n = ctx.paletteCount;
+      return grid.map(row=>row.map(v=> n+1-v));
+    },
+    randomParams(){ return {}; },
+    validate(grid, params, ctx){
+      if(ctx.paletteCount<2) return false;
+      return !gridsEqual(RULES.invert.apply(grid,params,ctx), grid);
+    }
+  },
+
+  shiftRows:{
+    apply(grid, params){
+      const k=params.k; const R=grid.length; const out=new Array(R);
+      for(let i=0;i<R;i++){ out[((i+k)%R+R)%R]=grid[i].slice(); }
+      return out;
+    },
+    randomParams(ctx){ if(ctx.size<2) return null; return { k: randInt(1, ctx.size-1) }; },
+    validate(grid, params, ctx){ return !gridsEqual(RULES.shiftRows.apply(grid,params,ctx), grid); }
+  },
+
+  shiftCols:{
+    apply(grid, params){
+      const k=params.k; const R=grid.length, C=grid[0].length;
+      const out=grid.map(row=>new Array(C).fill(0));
+      for(let i=0;i<R;i++){ for(let j=0;j<C;j++){ out[i][((j+k)%C+C)%C]=grid[i][j]; } }
+      return out;
+    },
+    randomParams(ctx){ if(ctx.size<2) return null; return { k: randInt(1, ctx.size-1) }; },
+    validate(grid, params, ctx){ return !gridsEqual(RULES.shiftCols.apply(grid,params,ctx), grid); }
+  },
+
+  swapColors:{
+    apply(grid, params){
+      const {a,b}=params;
+      return grid.map(row=>row.map(v=> v===a?b : v===b?a : v));
+    },
+    randomParams(ctx){
+      if(ctx.paletteCount<2) return null;
+      const a=randInt(1,ctx.paletteCount);
+      let b; do{ b=randInt(1,ctx.paletteCount); }while(b===a);
+      return {a,b};
+    },
+    validate(grid, params){ return countColor(grid,params.a)>=1 && countColor(grid,params.b)>=1; }
+  },
+
+  parity:{
+    apply(grid, params){
+      const {colorX, colorEven, colorOdd}=params;
+      const cnt=countColor(grid,colorX);
+      const target = (cnt%2===0) ? colorEven : colorOdd;
+      return grid.map(row=>row.map(v=> v===colorX ? target : v));
+    },
+    randomParams(ctx){
+      const colorX=randInt(1,ctx.paletteCount);
+      const colorEven=randInt(1,ctx.paletteCount);
+      let colorOdd; do{ colorOdd=randInt(1,ctx.paletteCount); }while(colorOdd===colorEven);
+      return {colorX,colorEven,colorOdd};
+    },
+    validate(grid, params){ return countColor(grid,params.colorX)>=1; }
+  },
+
+  region:{
+    apply(grid, params){
+      const comps=connectedComponents(grid);
+      let best=comps[0];
+      for(const c of comps){ if(c.cells.length>best.cells.length) best=c; }
+      const out=cloneGrid(grid);
+      for(const [r,c] of best.cells){ out[r][c]=params.newColor; }
+      return out;
+    },
+    randomParams(ctx){ return { newColor: randInt(1,ctx.paletteCount) }; },
+    validate(grid){
+      const comps=connectedComponents(grid);
+      const sizes=comps.map(c=>c.cells.length).sort((a,b)=>b-a);
+      return sizes.length===1 || sizes[0]>sizes[1];
+    }
+  },
+
+  border:{
+    apply(grid, params){
+      const R=grid.length, C=grid[0].length;
+      return grid.map((row,i)=>row.map((v,j)=> (i===0||i===R-1||j===0||j===C-1) ? params.newColor : v));
+    },
+    randomParams(ctx){ return { newColor: randInt(1,ctx.paletteCount) }; },
+    validate(grid, params, ctx){ return !gridsEqual(RULES.border.apply(grid,params,ctx), grid); }
+  },
+
+  center:{
+    apply(grid, params){
+      const R=grid.length, C=grid[0].length;
+      return grid.map((row,i)=>row.map((v,j)=> (i===0||i===R-1||j===0||j===C-1) ? v : params.newColor));
+    },
+    randomParams(ctx){
+      if(ctx.size<3) return null;
+      return { newColor: randInt(1,ctx.paletteCount) };
+    },
+    validate(grid, params, ctx){
+      if(ctx.size<3) return false;
+      return !gridsEqual(RULES.center.apply(grid,params,ctx), grid);
+    }
+  },
+
+  adjacency:{
+    apply(grid, params){
+      const R=grid.length, C=grid[0].length;
+      const out=cloneGrid(grid);
+      for(let i=0;i<R;i++){
+        for(let j=0;j<C;j++){
+          let cnt=0;
+          const neigh=[[i-1,j],[i+1,j],[i,j-1],[i,j+1]];
+          for(const [nr,nc] of neigh){
+            if(nr>=0 && nr<R && nc>=0 && nc<C && grid[nr][nc]===params.neighborColor) cnt++;
+          }
+          if(cnt>=params.minCount) out[i][j]=params.newColor;
+        }
+      }
+      return out;
+    },
+    randomParams(ctx){
+      return { neighborColor: randInt(1,ctx.paletteCount), minCount: randInt(2,3), newColor: randInt(1,ctx.paletteCount) };
+    },
+    validate(grid, params, ctx){
+      const result=RULES.adjacency.apply(grid,params,ctx);
+      let changed=0, total=0;
+      for(let i=0;i<grid.length;i++){ for(let j=0;j<grid[i].length;j++){ total++; if(result[i][j]!==grid[i][j]) changed++; } }
+      return changed>0 && changed<total;
+    }
+  },
+
+  conditional:{
+    apply(grid, params, ctx){
+      const cnt=countColor(grid, params.predicate.color);
+      const isOdd = (cnt%2===1);
+      const chosen = isOdd ? params.thenStep : params.elseStep;
+      return RULES[chosen.ruleId].apply(grid, chosen.params, ctx);
+    },
+    randomParams(ctx){
+      const simpleIds=['mirrorH','mirrorV','rotate90','rotate180','invert','swapColors','border','center'];
+      const color=randInt(1,ctx.paletteCount);
+      let thenId, thenParams, tries=0;
+      do{
+        thenId=simpleIds[randInt(0,simpleIds.length-1)];
+        thenParams=RULES[thenId].randomParams(ctx);
+        tries++;
+      }while(!thenParams && tries<20);
+      if(!thenParams) thenParams={};
+      let elseId, elseParams, tries2=0;
+      do{
+        elseId=simpleIds[randInt(0,simpleIds.length-1)];
+        elseParams=RULES[elseId].randomParams(ctx);
+        tries2++;
+      }while((!elseParams || elseId===thenId) && tries2<20);
+      if(!elseParams) elseParams={};
+      return { predicate:{color}, thenStep:{ruleId:thenId, params:thenParams}, elseStep:{ruleId:elseId, params:elseParams} };
+    },
+    validate(grid, params, ctx){
+      const cnt=countColor(grid, params.predicate.color);
+      const isOdd=(cnt%2===1);
+      const chosen = isOdd ? params.thenStep : params.elseStep;
+      return RULES[chosen.ruleId].validate(grid, chosen.params, ctx);
+    }
+  }
+};
+
+const SIMPLE_OPS = ['mirrorH','mirrorV','rotate90','rotate180','invert','shiftRows','shiftCols','swapColors'];
+const SPATIAL_OPS = ['border','center','region'];
+const ADVANCED_OPS = ['parity','adjacency'];
+const ALL_BASE_OPS = SIMPLE_OPS.concat(SPATIAL_OPS, ADVANCED_OPS);
+
+function applyChainToGrid(grid, chain, ctx){
+  let g=grid;
+  for(const step of chain){ g=RULES[step.ruleId].apply(g, step.params, ctx); }
+  return g;
+}
+
+function validateChainOnGrid(chain, grid, ctx){
+  let g=grid;
+  for(const step of chain){
+    const rule=RULES[step.ruleId];
+    if(!rule.validate(g, step.params, ctx)) return false;
+    g=rule.apply(g, step.params, ctx);
+  }
+  return true;
+}
+
+function generateChain(ctx, pool, length){
+  const chain=[];
+  let guard=0;
+  while(chain.length<length && guard<400){
+    guard++;
+    const id=pool[randInt(0,pool.length-1)];
+    if(chain.length>0 && chain[chain.length-1].ruleId===id) continue;
+    const params=RULES[id].randomParams(ctx);
+    if(!params) continue;
+    chain.push({ruleId:id, params});
+  }
+  return chain;
+}
+
+function chainsStructurallyEqual(a,b){
+  try{ return JSON.stringify(a)===JSON.stringify(b); }catch(e){ return false; }
+}
+
+function buildChainForTier(tierShape, ctx){
+  switch(tierShape){
+    case 0:
+    case 1:
+      return generateChain(ctx, SIMPLE_OPS, 1);
+    case 2:
+      return generateChain(ctx, SIMPLE_OPS.concat(SPATIAL_OPS), 2);
+    case 3:{
+      if(Math.random()<0.4){
+        return [{ ruleId:'conditional', params: RULES.conditional.randomParams(ctx) }];
+      }
+      const pool1=SPATIAL_OPS.concat(ADVANCED_OPS);
+      const first=pool1[randInt(0,pool1.length-1)];
+      const p1=RULES[first].randomParams(ctx);
+      const chain=p1 ? [{ruleId:first, params:p1}] : generateChain(ctx, SIMPLE_OPS, 1);
+      if(Math.random()<0.5){
+        const second=SIMPLE_OPS[randInt(0,SIMPLE_OPS.length-1)];
+        const p2=RULES[second].randomParams(ctx);
+        if(p2) chain.push({ruleId:second, params:p2});
+      }
+      return chain;
+    }
+    case 4:
+      return generateChain(ctx, SIMPLE_OPS.concat(SPATIAL_OPS), 2);
+    case 5:
+      return generateChain(ctx, SIMPLE_OPS.concat(SPATIAL_OPS), randInt(1,2));
+    case 6:
+      return generateChain(ctx, ALL_BASE_OPS, 2);
+    case 7:
+      return generateChain(ctx, ALL_BASE_OPS, randInt(3,4));
+    default:
+      return generateChain(ctx, SIMPLE_OPS.concat(SPATIAL_OPS), 2);
+  }
+}
+
+/* ============================================================
+   SECTION 4 — PUZZLE GENERATOR (with solvability / ambiguity QA)
+   ============================================================ */
+function generateValidGridForChain(chain, ctx, avoid){
+  avoid = avoid || [];
+  for(let i=0;i<80;i++){
+    const g=randomGrid(ctx.size, ctx.paletteCount);
+    if(avoid.some(a=>gridsEqual(a,g))) continue;
+    if(validateChainOnGrid(chain, g, ctx)) return {grid:g, success:true};
+  }
+  return {grid:null, success:false};
+}
+
+function checkAmbiguity(chain, examples, testInput, testOutput, ctx, sampleCount){
+  sampleCount = sampleCount || 130;
+  for(let i=0;i<sampleCount;i++){
+    let candChain;
+    if(Math.random()<0.12){
+      candChain=[{ ruleId:'conditional', params: RULES.conditional.randomParams(ctx) }];
+    } else {
+      const len=Math.max(1, chain.length + (randInt(0,2)-1));
+      candChain=generateChain(ctx, ALL_BASE_OPS, len);
+    }
+    if(!candChain.length) continue;
+    if(chainsStructurallyEqual(candChain, chain)) continue;
+    let consistent=true;
+    for(const ex of examples){
+      let candOut;
+      try{ candOut=applyChainToGrid(ex.input, candChain, ctx); }catch(e){ consistent=false; break; }
+      if(!gridsEqual(candOut, ex.output)){ consistent=false; break; }
+    }
+    if(!consistent) continue;
+    let candTestOut;
+    try{ candTestOut=applyChainToGrid(testInput, candChain, ctx); }catch(e){ continue; }
+    if(!gridsEqual(candTestOut, testOutput)){ return {ambiguous:true, candidate:candChain}; }
+  }
+  return {ambiguous:false};
+}
+
+function generateStandardPuzzle(tierShape, ctx, cfg){
+  let attempts=0;
+  while(attempts<60){
+    attempts++;
+    const chain=buildChainForTier(tierShape, ctx);
+    if(!chain.length) continue;
+    const range=cfg.examplesRange || [2,2];
+    const numExamples=randInt(range[0], range[1]);
+    const examples=[]; const used=[];
+    let ok=true;
+    for(let e=0;e<numExamples;e++){
+      const r=generateValidGridForChain(chain, ctx, used);
+      if(!r.success){ ok=false; break; }
+      used.push(r.grid);
+      examples.push({ input:r.grid, output:applyChainToGrid(r.grid, chain, ctx) });
+    }
+    if(!ok) continue;
+    const tr=generateValidGridForChain(chain, ctx, used);
+    if(!tr.success) continue;
+    const testInput=tr.grid;
+    const testOutput=applyChainToGrid(testInput, chain, ctx);
+    const amb=checkAmbiguity(chain, examples, testInput, testOutput, ctx);
+    if(amb.ambiguous) continue;
+    return { chain, examples, testInput, testOutput, ctx };
+  }
+  // Defensive fallback: a guaranteed-unambiguous single mirror, never hangs.
+  const fallbackChain=[{ruleId:'mirrorH', params:{}}];
+  let g, gv;
+  do{ gv=generateValidGridForChain(fallbackChain, ctx); g=gv.grid; }while(!gv.success);
+  const out=applyChainToGrid(g, fallbackChain, ctx);
+  let ti, tiv;
+  do{ tiv=generateValidGridForChain(fallbackChain, ctx, [g]); ti=tiv.grid; }while(!tiv.success);
+  return { chain:fallbackChain, examples:[{input:g, output:out}], testInput:ti, testOutput:applyChainToGrid(ti, fallbackChain, ctx), ctx };
+}
+
+const PROBE_CANDIDATE_POOL = SIMPLE_OPS.concat(SPATIAL_OPS);
+
+function generateAmbiguousPuzzle(ctx, cfg){
+  let attempts=0;
+  while(attempts<90){
+    attempts++;
+    const chain=buildChainForTier(5, ctx);
+    if(!chain.length) continue;
+    const r=generateValidGridForChain(chain, ctx);
+    if(!r.success) continue;
+    const exampleInput=r.grid;
+    const exampleOutput=applyChainToGrid(exampleInput, chain, ctx);
+
+    let found=false;
+    for(let i=0;i<160;i++){
+      const candLen=Math.max(1, randInt(1, chain.length+1));
+      const cand=generateChain(ctx, PROBE_CANDIDATE_POOL, candLen);
+      if(!cand.length || chainsStructurallyEqual(cand, chain)) continue;
+      let candOut;
+      try{ candOut=applyChainToGrid(exampleInput, cand, ctx); }catch(e){ continue; }
+      if(!gridsEqual(candOut, exampleOutput)) continue;
+      for(let t=0;t<50;t++){
+        const probeGrid=randomGrid(ctx.size, ctx.paletteCount);
+        let a,b;
+        try{ a=applyChainToGrid(probeGrid, cand, ctx); b=applyChainToGrid(probeGrid, chain, ctx); }catch(e){ continue; }
+        if(!gridsEqual(a,b)){ found=true; break; }
+      }
+      if(found) break;
+    }
+    if(!found) continue;
+
+    const tr=generateValidGridForChain(chain, ctx, [exampleInput]);
+    if(!tr.success) continue;
+    const testInput=tr.grid;
+    const testOutput=applyChainToGrid(testInput, chain, ctx);
+    return { chain, examples:[{input:exampleInput, output:exampleOutput}], testInput, testOutput, ctx };
+  }
+  return generateStandardPuzzle(1, ctx, cfg);
+}
+
+function generateDecoyPuzzle(ctx, cfg){
+  let attempts=0;
+  while(attempts<90){
+    attempts++;
+    const trueChain=buildChainForTier(6, ctx);
+    if(!trueChain.length) continue;
+    const r1=generateValidGridForChain(trueChain, ctx);
+    if(!r1.success) continue;
+    const ex1in=r1.grid;
+    const ex1out=applyChainToGrid(ex1in, trueChain, ctx);
+
+    let decoy=null;
+    for(let i=0;i<120;i++){
+      const cand=generateChain(ctx, PROBE_CANDIDATE_POOL, 1);
+      if(!cand.length || chainsStructurallyEqual(cand, trueChain)) continue;
+      let candOut;
+      try{ candOut=applyChainToGrid(ex1in, cand, ctx); }catch(e){ continue; }
+      if(gridsEqual(candOut, ex1out)){ decoy=cand; break; }
+    }
+    if(!decoy) continue;
+
+    let ex2in=null, ex2out=null;
+    for(let i=0;i<80;i++){
+      const g=randomGrid(ctx.size, ctx.paletteCount);
+      if(gridsEqual(g, ex1in)) continue;
+      if(!validateChainOnGrid(trueChain, g, ctx)) continue;
+      const trueOut=applyChainToGrid(g, trueChain, ctx);
+      const decoyOut=applyChainToGrid(g, decoy, ctx);
+      if(!gridsEqual(trueOut, decoyOut)){ ex2in=g; ex2out=trueOut; break; }
+    }
+    if(!ex2in) continue;
+
+    const examples=[{input:ex1in, output:ex1out}, {input:ex2in, output:ex2out}];
+    const tr=generateValidGridForChain(trueChain, ctx, [ex1in, ex2in]);
+    if(!tr.success) continue;
+    const testInput=tr.grid;
+    const testOutput=applyChainToGrid(testInput, trueChain, ctx);
+
+    const amb=checkAmbiguity(trueChain, examples, testInput, testOutput, ctx);
+    if(amb.ambiguous) continue;
+
+    return { chain:trueChain, examples, testInput, testOutput, ctx, decoyChain:decoy };
+  }
+  return generateStandardPuzzle(2, ctx, cfg);
+}
+
+function generatePuzzleForTier(tierIndex){
+  const cfg=TIER_CONFIGS[tierIndex];
+  const size=randInt(cfg.sizeRange[0], cfg.sizeRange[1]);
+  const paletteCount=randInt(cfg.paletteRange[0], cfg.paletteRange[1]);
+  const ctx={ size, paletteCount };
+  let puzzle;
+  if(cfg.probes){ puzzle=generateAmbiguousPuzzle(ctx, cfg); }
+  else if(cfg.decoy){ puzzle=generateDecoyPuzzle(ctx, cfg); }
+  else { puzzle=generateStandardPuzzle(tierIndex===0?1:tierIndex, ctx, cfg); }
+  puzzle.tier=tierIndex;
+  puzzle.category=cfg.category;
+  puzzle.timeLimit=cfg.timeLimit;
+  puzzle.memoryFlash=!!cfg.memoryFlash;
+  puzzle.flashMs=cfg.flashMs || 4000;
+  puzzle.probesAllowed=cfg.probes || 0;
+  puzzle.basePoints=BASE_POINTS[tierIndex] || 100;
+  return puzzle;
+}
+
+function generateCrucibleRound(roundIndex){
+  const archetypes=['Direct','Composite','Conditional','Memory','Probe','Decoy','Compound'];
+  const category=archetypes[randInt(0,archetypes.length-1)];
+  const size=Math.min(7, 3+Math.floor(roundIndex/4));
+  const paletteCount=Math.min(6, 2+Math.floor(roundIndex/3));
+  const timeLimit=Math.max(10, 25-Math.floor(roundIndex/3));
+  const ctx={ size:Math.max(3,size), paletteCount:Math.max(2,paletteCount) };
+  const fakeCfg={ examplesRange:[2,2] };
+
+  let puzzle;
+  if(category==='Probe'){ puzzle=generateAmbiguousPuzzle(ctx, fakeCfg); puzzle.probesAllowed=3; }
+  else if(category==='Decoy'){ puzzle=generateDecoyPuzzle(ctx, fakeCfg); puzzle.probesAllowed=0; }
+  else {
+    const tierMap={ Direct:1, Composite:2, Conditional:3, Memory:4, Compound:7 };
+    puzzle=generateStandardPuzzle(tierMap[category]||2, ctx, fakeCfg);
+    puzzle.probesAllowed=0;
+  }
+  puzzle.tier=8;
+  puzzle.category=category;
+  puzzle.timeLimit=timeLimit;
+  puzzle.memoryFlash=(category==='Memory');
+  puzzle.flashMs=3500;
+  puzzle.tierLabel='The Crucible — Round '+(roundIndex+1);
+  puzzle.basePoints=500+roundIndex*8;
+  return puzzle;
+}
+
+/* ============================================================
+   SECTION 5 — GAME STATE
+   ============================================================ */
+const STATE = {
+  screen:'title',
+  tier:0,
+  levelInTier:0,
+  mistakesThisTier:0,
+  tierRunStats:{ attempts:0, correct:0, points:0 },
+  score:0,
+  streak:0,
+  crucibleLives:3,
+  crucibleRound:0,
+  muted:false,
+  currentPuzzle:null,
+  workingGrid:null,
+  selectedColor:1,
+  cursor:{r:0,c:0},
+  timerRemaining:null,
+  timerInterval:null,
+  submitLocked:false,
+  probesRemaining:0,
+  probesUsedThisPuzzle:0,
+  totalProbesUsed:0,
+  profileStats:{},
+  maxTierReached:0,
+  tierResetPending:false,
+};
+
+function resetRunState(){
+  STATE.tier=0;
+  STATE.levelInTier=0;
+  STATE.mistakesThisTier=0;
+  STATE.tierRunStats={attempts:0,correct:0,points:0};
+  STATE.score=0;
+  STATE.streak=0;
+  STATE.crucibleLives=3;
+  STATE.crucibleRound=0;
+  STATE.currentPuzzle=null;
+  STATE.profileStats={};
+  STATE.totalProbesUsed=0;
+  STATE.maxTierReached=0;
+  STATE.tierResetPending=false;
+}
+
+function calcRank(score){
+  for(const r of RANKS){ if(score>=r.min) return r.name; }
+  return 'Novice';
+}
+
+function computeScore(puzzle, frac, streakBefore, probesUsed){
+  const base=puzzle.basePoints || 100;
+  const speedMult = (frac==null) ? 1.0 : (1.0 + Math.max(0, Math.min(1, frac)));
+  const streakMult = Math.min(2.0, 1.0 + 0.1*streakBefore);
+  let score = base*speedMult*streakMult;
+  score -= probesUsed*0.15*base;
+  return Math.max(0, Math.round(score));
+}
+
+function recordStat(category, correct, elapsed){
+  if(!STATE.profileStats[category]) STATE.profileStats[category]={attempts:0,correct:0,timeSum:0};
+  const s=STATE.profileStats[category];
+  s.attempts++;
+  if(correct) s.correct++;
+  s.timeSum += Math.max(0, elapsed||0);
+}
+
+/* ============================================================
+   SECTION 6 — AUDIO
+   ============================================================ */
+let audioCtx=null;
+function ensureAudioCtx(){
+  if(!audioCtx){
+    const AC=window.AudioContext || window.webkitAudioContext;
+    if(AC) audioCtx=new AC();
+  }
+  return audioCtx;
+}
+function playTone(success){
+  if(STATE.muted) return;
+  const ctx=ensureAudioCtx();
+  if(!ctx) return;
+  try{
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type='sine';
+    osc.frequency.value = success ? 700 : 200;
+    gain.gain.value=0.0001;
+    osc.connect(gain); gain.connect(ctx.destination);
+    const now=ctx.currentTime;
+    gain.gain.exponentialRampToValueAtTime(0.13, now+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now+(success?0.26:0.36));
+    osc.start(now);
+    osc.stop(now+(success?0.32:0.42));
+  }catch(e){ /* audio not available, fail silently */ }
+}
+
+/* ============================================================
+   SECTION 7 — RENDERER HELPERS
+   ============================================================ */
+const app=document.getElementById('app');
+
+function labelEl(text){
+  const d=document.createElement('div');
+  d.className='section-label';
+  d.style.marginBottom='2px';
+  d.textContent=text;
+  return d;
+}
+
+function applyCellColor(cellEl, v){
+  cellEl.className='cell';
+  if(!v || v===0){
+    cellEl.classList.add('cell-empty');
+    cellEl.style.background='';
+  } else {
+    cellEl.style.background=PALETTE[v-1];
+  }
+}
+
+function renderGridDOM(grid, opts){
+  opts=opts || {};
+  const size=grid.length;
+  const container=document.createElement('div');
+  container.className='grid'+(opts.editable?' grid-editable':'');
+  container.style.gridTemplateColumns='repeat('+size+',1fr)';
+  container.style.gridTemplateRows='repeat('+size+',1fr)';
+  for(let i=0;i<size;i++){
+    for(let j=0;j<size;j++){
+      const cell=document.createElement('div');
+      cell.dataset.r=i; cell.dataset.c=j;
+      applyCellColor(cell, grid[i][j]);
+      if(opts.editable){
+        cell.addEventListener('click', ()=>opts.onCellClick(i,j));
+      }
+      container.appendChild(cell);
+    }
+  }
+  return container;
+}
+
+let toastTimeout=null;
+function showToast(text, kind){
+  let t=document.getElementById('axiomToast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='axiomToast';
+    t.className='toast';
+    document.body.appendChild(t);
+  }
+  t.textContent=text;
+  t.className='toast toast-'+kind+' show';
+  if(toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout=setTimeout(()=>{ t.classList.remove('show'); }, 1300);
+}
+
+function spawnBurst(container, count, colors){
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');
+    p.className='burst-particle';
+    const size=randInt(4,9);
+    const angle=Math.random()*Math.PI*2;
+    const dist=randInt(60,150);
+    const endX=Math.cos(angle)*dist;
+    const endY=Math.sin(angle)*dist;
+    p.style.width=size+'px'; p.style.height=size+'px';
+    p.style.left='50%'; p.style.top='40%';
+    p.style.background=colors[randInt(0,colors.length-1)];
+    p.style.setProperty('--end-transform', 'translate('+endX+'px,'+endY+'px)');
+    container.appendChild(p);
+    setTimeout(()=>{ p.remove(); }, 850);
+  }
+}
+
+/* ============================================================
+   SECTION 8 — TITLE / HOW-IT-WORKS / LEADERBOARD SCREENS
+   ============================================================ */
+function getLeaderboard(){
+  try{
+    const raw=localStorage.getItem('axiom_leaderboard');
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveLeaderboard(list){
+  try{ localStorage.setItem('axiom_leaderboard', JSON.stringify(list)); }catch(e){}
+}
+function getBestScore(){
+  const lb=getLeaderboard();
+  if(!lb.length) return null;
+  return Math.max.apply(null, lb.map(e=>e.score));
+}
+
+function renderTitleScreen(){
+  STATE.screen='title';
+  const best=getBestScore();
+  app.innerHTML =
+    '<div class="screen title-screen">'+
+      '<div class="title-grid-decoration" id="titleDeco"></div>'+
+      '<h1 class="title-wordmark">AXIOM</h1>'+
+      '<div class="title-tagline">FIND THE RULE. TRUST NOTHING ELSE.</div>'+
+      '<div class="title-actions">'+
+        '<button class="btn btn-submit btn-large" id="beginBtn">Begin</button>'+
+        '<button class="text-btn" id="howItWorksBtn">How it works</button>'+
+        '<button class="text-btn" id="leaderboardLinkBtn">Leaderboard</button>'+
+      '</div>'+
+      (best!=null ? '<div class="title-best">Best run: '+best.toLocaleString()+' pts</div>' : '')+
+      '<div class="footer-note">AXIOM is a self-test for sharp reasoning practice — not a validated psychometric or IQ instrument. No randomness ever determines a correct answer; every puzzle is pure deduction.</div>'+
+    '</div>';
+
+  const deco=document.getElementById('titleDeco');
+  const pattern=[1,2,1,3,0,3,1,2,1];
+  pattern.forEach((v,idx)=>{
+    const c=document.createElement('div');
+    c.className='dcell';
+    c.style.background = v? PALETTE[v-1] : 'var(--surface-elevated)';
+    c.style.animationDelay=(idx*0.15)+'s';
+    deco.appendChild(c);
+  });
+
+  document.getElementById('beginBtn').addEventListener('click', ()=>{
+    resetRunState();
+    renderTutorialIntro();
+  });
+  document.getElementById('howItWorksBtn').addEventListener('click', openHowItWorks);
+  document.getElementById('leaderboardLinkBtn').addEventListener('click', ()=>renderLeaderboardScreen(renderTitleScreen));
+}
+
+function openHowItWorks(){
+  const modal=document.createElement('div');
+  modal.className='modal-backdrop';
+  modal.innerHTML =
+    '<div class="modal">'+
+      '<div class="modal-title">How AXIOM works</div>'+
+      '<ul class="howitworks-list">'+
+        '<li><span class="num">01</span>Each puzzle shows you Input → Output example grids, transformed by one hidden rule.</li>'+
+        '<li><span class="num">02</span>Study the examples, then apply what you believe the rule is to a new Test Input.</li>'+
+        '<li><span class="num">03</span>Paint your answer onto the empty output grid using the color palette, then submit.</li>'+
+        '<li><span class="num">04</span>Difficulty escalates across 9 tiers — composite rules, conditionals, memory load, deliberate ambiguity, decoys, and compound chains.</li>'+
+        '<li><span class="num">05</span>From Tier 5 onward you get probe tokens: submit your own test grid to see what the rule does to it, before committing to a final answer.</li>'+
+        '<li><span class="num">06</span>Clear all 7 tiers to unlock The Crucible — an endless, accelerating score-attack mode.</li>'+
+      '</ul>'+
+      '<div class="modal-actions"><button class="btn btn-submit" id="closeHowBtn">Got it</button></div>'+
+    '</div>';
+  document.body.appendChild(modal);
+  document.getElementById('closeHowBtn').addEventListener('click', ()=>modal.remove());
+  modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.remove(); });
+}
+
+function renderLeaderboardScreen(onBack){
+  STATE.screen='leaderboard';
+  const lb=getLeaderboard().slice().sort((a,b)=>b.score-a.score).slice(0,10);
+  let rows='';
+  if(!lb.length){
+    rows='<tr><td colspan="4" class="lb-empty">No runs saved yet. Be the first to set a benchmark.</td></tr>';
+  } else {
+    rows=lb.map((e,idx)=>
+      '<tr><td class="lb-rank">'+(idx+1)+'</td><td>'+escapeHtml(e.name)+'</td><td>'+escapeHtml(e.rank)+'</td><td class="lb-score">'+e.score.toLocaleString()+'</td></tr>'
+    ).join('');
+  }
+  app.innerHTML =
+    '<div class="screen leaderboard-screen">'+
+      '<h2 style="font-family:var(--font-display);font-size:24px;margin-bottom:18px;">Leaderboard</h2>'+
+      '<table class="leaderboard-table">'+
+        '<thead><tr><th>#</th><th>Name</th><th>Rank</th><th style="text-align:right;">Score</th></tr></thead>'+
+        '<tbody>'+rows+'</tbody>'+
+      '</table>'+
+      '<div style="margin-top:24px;"><button class="btn btn-secondary" id="lbBackBtn">Back</button></div>'+
+    '</div>';
+  document.getElementById('lbBackBtn').addEventListener('click', onBack);
+}
+
+/* ============================================================
+   SECTION 9 — TUTORIAL (TIER 0)
+   ============================================================ */
+function renderTutorialIntro(){
+  STATE.tier=0;
+  STATE.levelInTier=0;
+  STATE.mistakesThisTier=0;
+  STATE.tierRunStats={attempts:0,correct:0,points:0};
+  loadTierPuzzle();
+}
+
+/* ============================================================
+   SECTION 10 — PUZZLE SCREEN
+   ============================================================ */
+function loadTierPuzzle(){
+  STATE.submitLocked=false;
+  const puzzle=generatePuzzleForTier(STATE.tier);
+  STATE.currentPuzzle=puzzle;
+  STATE.probesRemaining=puzzle.probesAllowed||0;
+  STATE.probesUsedThisPuzzle=0;
+  STATE.screen='puzzle';
+  renderPuzzleScreen();
+}
+
+function loadCrucibleRound(){
+  STATE.submitLocked=false;
+  const puzzle=generateCrucibleRound(STATE.crucibleRound);
+  STATE.currentPuzzle=puzzle;
+  STATE.probesRemaining=puzzle.probesAllowed||0;
+  STATE.probesUsedThisPuzzle=0;
+  STATE.screen='puzzle';
+  renderPuzzleScreen();
+}
+
+function updateLivesDisplay(){
+  const el=document.getElementById('livesDisplay');
+  if(!el) return;
+  const p=STATE.currentPuzzle;
+  el.innerHTML='';
+  if(p.tier===8){
+    for(let i=0;i<3;i++){
+      const d=document.createElement('div');
+      d.className='life-dot'+(i<STATE.crucibleLives?'':' lost');
+      el.appendChild(d);
+    }
+  } else {
+    for(let i=0;i<3;i++){
+      const d=document.createElement('div');
+      d.className='life-dot'+(i<(3-STATE.mistakesThisTier)?'':' lost');
+      el.appendChild(d);
+    }
+  }
+}
+
+function renderPuzzleScreen(){
+  const p=STATE.currentPuzzle;
+  const cfg = p.tier===8 ? null : TIER_CONFIGS[p.tier];
+  const tierLabel = p.tier===8 ? p.tierLabel : cfg.name;
+  const levelLabel = p.tier===8 ? '' : ('Level '+(STATE.levelInTier+1)+' / '+cfg.puzzleCount);
+
+  app.innerHTML =
+    '<div class="screen puzzle-screen">'+
+      '<div class="topbar">'+
+        '<div class="topbar-left">'+
+          '<div class="tier-name">'+escapeHtml(tierLabel)+'</div>'+
+          '<div class="level-label">'+escapeHtml(levelLabel)+'</div>'+
+        '</div>'+
+        '<div class="topbar-center"><div class="timer" id="timerDisplay">'+(p.timeLimit?formatTime(p.timeLimit):'—')+'</div></div>'+
+        '<div class="topbar-right">'+
+          '<div class="lives" id="livesDisplay"></div>'+
+          '<div class="streak" id="streakDisplay">Streak '+STATE.streak+'</div>'+
+          '<div class="score" id="scoreDisplay">'+STATE.score.toLocaleString()+'</div>'+
+          '<button class="icon-btn" id="muteBtn" title="Mute">'+(STATE.muted?'\u{1F507}':'\u{1F50A}')+'</button>'+
+          '<button class="text-btn" id="endRunBtn">End run</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="puzzle-body" id="puzzleBody">'+
+        (p.tier===0 ? '<div class="tutorial-banner"><strong>Welcome to AXIOM.</strong>Below are two Input → Output examples. A single hidden rule turned each Input into its Output. Study them, then paint the same rule onto the Test Input below to fill in Your Output, and press Submit.</div>' : '')+
+        '<div class="examples-section" id="examplesSection">'+
+          '<div class="section-label">Examples</div>'+
+          '<div class="examples-row" id="examplesRow"></div>'+
+          (p.memoryFlash ? '<div class="flash-note" id="flashNote">Memorize the rule — examples vanish in a moment.</div>' : '')+
+        '</div>'+
+        '<div class="test-section" id="testSection" style="'+(p.memoryFlash?'display:none;':'')+'">'+
+          '<div class="test-grids">'+
+            '<div class="grid-block"><div class="section-label">Test Input</div><div class="grid-wrap" id="testInputWrap"></div></div>'+
+            '<div class="arrow-glyph">\u2192</div>'+
+            '<div class="grid-block"><div class="section-label">Your Output</div><div class="grid-wrap" id="testOutputWrap"></div></div>'+
+          '</div>'+
+          '<div class="palette-row" id="paletteRow"></div>'+
+          '<div class="actions-row">'+
+            (p.probesAllowed ? '<button class="btn btn-probe" id="probeBtn">Probe (<span class="probe-token-count" id="probeCount">'+STATE.probesRemaining+'</span>)</button>' : '')+
+            '<button class="btn btn-submit" id="submitBtn">Submit</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  const examplesRow=document.getElementById('examplesRow');
+  p.examples.forEach(ex=>{
+    const pair=document.createElement('div'); pair.className='example-pair';
+    const inBlock=document.createElement('div'); inBlock.className='mini-grid-block';
+    inBlock.appendChild(labelEl('Input'));
+    inBlock.appendChild(renderGridDOM(ex.input,{editable:false}));
+    const arrow=document.createElement('div'); arrow.className='mini-arrow'; arrow.textContent='\u2192';
+    const outBlock=document.createElement('div'); outBlock.className='mini-grid-block';
+    outBlock.appendChild(labelEl('Output'));
+    outBlock.appendChild(renderGridDOM(ex.output,{editable:false}));
+    pair.appendChild(inBlock); pair.appendChild(arrow); pair.appendChild(outBlock);
+    examplesRow.appendChild(pair);
+  });
+
+  updateLivesDisplay();
+
+  document.getElementById('muteBtn').addEventListener('click', ()=>{
+    STATE.muted=!STATE.muted;
+    document.getElementById('muteBtn').textContent = STATE.muted ? '\u{1F507}' : '\u{1F50A}';
+    try{ localStorage.setItem('axiom_muted', STATE.muted?'1':'0'); }catch(e){}
+  });
+  document.getElementById('endRunBtn').addEventListener('click', ()=>{
+    stopTimer();
+    goToProfile();
+  });
+
+  if(p.memoryFlash){
+    setTimeout(()=>{
+      const es=document.getElementById('examplesSection');
+      const ts=document.getElementById('testSection');
+      if(es) es.style.display='none';
+      if(ts) ts.style.display='';
+      mountTestArea();
+      startTimerIfNeeded();
+    }, p.flashMs);
+  } else {
+    mountTestArea();
+    startTimerIfNeeded();
+  }
+}
+
+function mountTestArea(){
+  const p=STATE.currentPuzzle;
+  STATE.workingGrid=makeGrid(p.ctx.size, 0);
+  STATE.selectedColor=1;
+  STATE.cursor={r:0,c:0};
+
+  const testInputWrap=document.getElementById('testInputWrap');
+  testInputWrap.innerHTML='';
+  testInputWrap.appendChild(renderGridDOM(p.testInput,{editable:false}));
+
+  const testOutputWrap=document.getElementById('testOutputWrap');
+  testOutputWrap.innerHTML='';
+  const outGrid=renderGridDOM(STATE.workingGrid,{editable:true, onCellClick:(r,c)=>paintCell(r,c)});
+  outGrid.id='testOutputGrid';
+  testOutputWrap.appendChild(outGrid);
+  highlightCursor();
+
+  const paletteRow=document.getElementById('paletteRow');
+  paletteRow.innerHTML='';
+  for(let c=1;c<=p.ctx.paletteCount;c++){
+    const sw=document.createElement('button');
+    sw.className='swatch'+(c===STATE.selectedColor?' swatch-selected':'');
+    sw.style.background=PALETTE[c-1];
+    sw.dataset.color=c;
+    sw.addEventListener('click', ()=>selectColor(c));
+    paletteRow.appendChild(sw);
+  }
+  const eraser=document.createElement('button');
+  eraser.className='swatch swatch-eraser';
+  eraser.textContent='\u2715';
+  eraser.dataset.color='0';
+  eraser.addEventListener('click', ()=>selectColor(0));
+  paletteRow.appendChild(eraser);
+
+  document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+  if(p.probesAllowed){
+    const pb=document.getElementById('probeBtn');
+    if(pb) pb.addEventListener('click', openProbeModal);
+  }
+}
+
+function selectColor(c){
+  STATE.selectedColor=c;
+  const swatches=document.querySelectorAll('#paletteRow .swatch');
+  swatches.forEach(s=>{
+    s.classList.toggle('swatch-selected', s.dataset.color===String(c));
+  });
+}
+
+function paintCell(r,c){
+  STATE.workingGrid[r][c]=STATE.selectedColor;
+  const grid=document.getElementById('testOutputGrid');
+  if(!grid) return;
+  const cellEl=grid.querySelector('.cell[data-r="'+r+'"][data-c="'+c+'"]');
+  applyCellColor(cellEl, STATE.selectedColor);
+  cellEl.classList.add('cell-pulse');
+  setTimeout(()=>cellEl.classList.remove('cell-pulse'),200);
+  STATE.cursor={r,c};
+  highlightCursor();
+}
+
+function highlightCursor(){
+  const grid=document.getElementById('testOutputGrid');
+  if(!grid) return;
+  grid.querySelectorAll('.cell-cursor').forEach(c=>c.classList.remove('cell-cursor'));
+  const cellEl=grid.querySelector('.cell[data-r="'+STATE.cursor.r+'"][data-c="'+STATE.cursor.c+'"]');
+  if(cellEl) cellEl.classList.add('cell-cursor');
+}
+
+function moveCursor(dr,dc){
+  const p=STATE.currentPuzzle;
+  if(!p || !document.getElementById('testOutputGrid')) return;
+  const size=p.ctx.size;
+  let r=STATE.cursor.r+dr, c=STATE.cursor.c+dc;
+  r=Math.max(0, Math.min(size-1, r));
+  c=Math.max(0, Math.min(size-1, c));
+  STATE.cursor={r,c};
+  highlightCursor();
+}
+
+/* ---------- Timer ---------- */
+function timerTick(){
+  STATE.timerRemaining -= 0.25;
+  if(STATE.timerRemaining<=0){
+    STATE.timerRemaining=0;
+    updateTimerDisplay();
+    stopTimer();
+    handleTimeout();
+    return;
+  }
+  updateTimerDisplay();
+}
+function startTimerIfNeeded(){
+  const p=STATE.currentPuzzle;
+  if(!p.timeLimit){
+    STATE.timerRemaining=null;
+    const td=document.getElementById('timerDisplay');
+    if(td) td.textContent='—';
+    return;
+  }
+  STATE.timerRemaining=p.timeLimit;
+  updateTimerDisplay();
+  stopTimer();
+  STATE.timerInterval=setInterval(timerTick, 250);
+}
+function stopTimer(){
+  if(STATE.timerInterval){ clearInterval(STATE.timerInterval); STATE.timerInterval=null; }
+}
+function pauseTimer(){ stopTimer(); }
+function resumeTimer(){
+  const p=STATE.currentPuzzle;
+  if(p && p.timeLimit && !STATE.submitLocked && STATE.timerRemaining>0){
+    stopTimer();
+    STATE.timerInterval=setInterval(timerTick, 250);
+  }
+}
+function updateTimerDisplay(){
+  const td=document.getElementById('timerDisplay');
+  if(!td) return;
+  const p=STATE.currentPuzzle;
+  td.textContent=formatTime(STATE.timerRemaining);
+  const frac=STATE.timerRemaining/p.timeLimit;
+  td.classList.toggle('timer-warning', frac<=0.25 && frac>0.1);
+  td.classList.toggle('timer-critical', frac<=0.1);
+}
+
+/* ---------- Probe ---------- */
+function openProbeModal(){
+  if(STATE.probesRemaining<=0) return;
+  pauseTimer();
+  const p=STATE.currentPuzzle;
+  const probeGrid=makeGrid(p.ctx.size, 1);
+  let probeSelectedColor=1;
+
+  const modal=document.createElement('div');
+  modal.className='modal-backdrop';
+  modal.id='probeModal';
+  modal.innerHTML =
+    '<div class="modal probe-modal">'+
+      '<div class="modal-title">Probe — test the hidden rule</div>'+
+      '<div class="modal-sub">Paint any grid you like. The hidden rule will be applied to it so you can see the result — this will not be scored as your final answer.</div>'+
+      '<div class="grid-wrap" id="probeGridWrap"></div>'+
+      '<div class="palette-row" id="probePaletteRow" style="margin-top:14px;"></div>'+
+      '<div class="modal-actions">'+
+        '<button class="btn btn-secondary" id="probeCancelBtn">Cancel</button>'+
+        '<button class="btn btn-probe" id="probeRunBtn">Run Probe</button>'+
+      '</div>'+
+      '<div class="probe-result hidden" id="probeResultBlock">'+
+        '<div class="section-label">Result</div>'+
+        '<div class="grid-wrap" id="probeResultWrap"></div>'+
+        '<div class="modal-actions"><button class="btn btn-submit" id="probeCloseBtn">Close</button></div>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(modal);
+
+  function renderProbeGrid(){
+    const wrap=document.getElementById('probeGridWrap');
+    wrap.innerHTML='';
+    const g=renderGridDOM(probeGrid,{editable:true, onCellClick:(r,c)=>{
+      probeGrid[r][c]=probeSelectedColor;
+      renderProbeGrid();
+    }});
+    wrap.appendChild(g);
+  }
+  renderProbeGrid();
+
+  const paletteRow=document.getElementById('probePaletteRow');
+  for(let c=1;c<=p.ctx.paletteCount;c++){
+    const sw=document.createElement('button');
+    sw.className='swatch'+(c===probeSelectedColor?' swatch-selected':'');
+    sw.style.background=PALETTE[c-1];
+    sw.dataset.color=c;
+    sw.addEventListener('click', ()=>{
+      probeSelectedColor=c;
+      paletteRow.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('swatch-selected', s.dataset.color===String(c)));
+    });
+    paletteRow.appendChild(sw);
+  }
+
+  document.getElementById('probeCancelBtn').addEventListener('click', ()=>{
+    modal.remove();
+    resumeTimer();
+  });
+
+  document.getElementById('probeRunBtn').addEventListener('click', ()=>{
+    const result=applyChainToGrid(probeGrid, p.chain, p.ctx);
+    STATE.probesRemaining--;
+    STATE.probesUsedThisPuzzle++;
+    STATE.totalProbesUsed++;
+    const countEl=document.getElementById('probeCount');
+    if(countEl) countEl.textContent=STATE.probesRemaining;
+    const probeBtn=document.getElementById('probeBtn');
+    if(probeBtn && STATE.probesRemaining<=0) probeBtn.setAttribute('disabled','disabled');
+
+    const resWrap=document.getElementById('probeResultWrap');
+    resWrap.innerHTML='';
+    resWrap.appendChild(renderGridDOM(result,{editable:false}));
+    document.getElementById('probeResultBlock').classList.remove('hidden');
+    document.getElementById('probeRunBtn').setAttribute('disabled','disabled');
+    document.getElementById('probeCancelBtn').textContent='Done';
+  });
+
+  document.getElementById('probeCloseBtn').addEventListener('click', ()=>{
+    modal.remove();
+    resumeTimer();
+  });
+}
+
+/* ---------- Submission ---------- */
+function evaluateAndAdvance(forcedIncorrect){
+  if(STATE.submitLocked) return;
+  STATE.submitLocked=true;
+  stopTimer();
+  const p=STATE.currentPuzzle;
+  const correct = forcedIncorrect ? false : gridsEqual(STATE.workingGrid, p.testOutput);
+  const elapsed = p.timeLimit ? (p.timeLimit-(STATE.timerRemaining||0)) : null;
+  recordStat(p.category, correct, elapsed);
+
+  if(correct){
+    STATE.streak++;
+    const frac = p.timeLimit ? Math.max(0, Math.min(1, (STATE.timerRemaining||0)/p.timeLimit)) : null;
+    const pts = computeScore(p, frac, STATE.streak-1, STATE.probesUsedThisPuzzle);
+    STATE.score += pts;
+    STATE.tierRunStats.attempts++;
+    STATE.tierRunStats.correct++;
+    STATE.tierRunStats.points += pts;
+    showSubmitFeedback(true, pts);
+    playTone(true);
+  } else {
+    STATE.streak=0;
+    STATE.tierRunStats.attempts++;
+    showSubmitFeedback(false, 0);
+    playTone(false);
+    registerMistake();
+  }
+
+  updateTopbarLive();
+
+  setTimeout(()=>{ proceedAfterSubmission(); }, 900);
+}
+
+function handleSubmit(){ evaluateAndAdvance(false); }
+function handleTimeout(){ evaluateAndAdvance(true); }
+
+function showSubmitFeedback(correct, pts){
+  const grid=document.getElementById('testOutputGrid');
+  if(grid){
+    grid.classList.add(correct?'grid-success':'grid-error');
+    setTimeout(()=>{ grid.classList.remove('grid-success','grid-error'); }, 700);
+  }
+  showToast(correct? ('+'+pts) : 'Incorrect', correct?'success':'error');
+}
+
+function updateTopbarLive(){
+  const sd=document.getElementById('streakDisplay');
+  if(sd) sd.textContent='Streak '+STATE.streak;
+  const sc=document.getElementById('scoreDisplay');
+  if(sc) sc.textContent=STATE.score.toLocaleString();
+  updateLivesDisplay();
+}
+
+function registerMistake(){
+  const p=STATE.currentPuzzle;
+  if(p.tier===8){
+    STATE.crucibleLives--;
+  } else {
+    STATE.mistakesThisTier++;
+    if(STATE.mistakesThisTier>=3){ STATE.tierResetPending=true; }
+  }
+}
+
+function proceedAfterSubmission(){
+  const p=STATE.currentPuzzle;
+
+  if(p.tier===8){
+    if(STATE.crucibleLives<=0){ goToProfile(); return; }
+    STATE.crucibleRound++;
+    loadCrucibleRound();
+    return;
+  }
+
+  if(STATE.tierResetPending){
+    STATE.tierResetPending=false;
+    STATE.mistakesThisTier=0;
+    STATE.levelInTier=0;
+    STATE.tierRunStats={attempts:0,correct:0,points:0};
+    showToast('Tier reset — sharpen up', 'error');
+    setTimeout(()=>{ loadTierPuzzle(); }, 650);
+    return;
+  }
+
+  STATE.levelInTier++;
+  const cfg=TIER_CONFIGS[STATE.tier];
+  if(STATE.levelInTier>=cfg.puzzleCount){
+    goToTierComplete();
+  } else {
+    loadTierPuzzle();
+  }
+}
+
+/* ============================================================
+   SECTION 11 — TIER COMPLETE / CRUCIBLE GATE
+   ============================================================ */
+function goToTierComplete(){
+  STATE.screen='tierComplete';
+  if(STATE.tier>STATE.maxTierReached) STATE.maxTierReached=STATE.tier;
+  const cfg=TIER_CONFIGS[STATE.tier];
+  const stats=STATE.tierRunStats;
+  const acc = stats.attempts ? Math.round(100*stats.correct/stats.attempts) : 100;
+  const isFinalTier = STATE.tier===7;
+
+  app.innerHTML =
+    '<div class="screen interstitial-screen">'+
+      '<div class="interstitial-card" id="interstitialCard">'+
+        '<div class="interstitial-eyebrow">Tier complete</div>'+
+        '<div class="interstitial-title">'+escapeHtml(cfg.name)+'</div>'+
+        '<div class="interstitial-stats">'+
+          '<div class="istat"><div class="istat-value">'+acc+'%</div><div class="istat-label">Accuracy</div></div>'+
+          '<div class="istat"><div class="istat-value">+'+stats.points.toLocaleString()+'</div><div class="istat-label">Points earned</div></div>'+
+        '</div>'+
+        (isFinalTier
+          ? '<div style="display:flex;flex-direction:column;gap:12px;align-items:center;">'+
+              '<button class="btn btn-probe btn-large" id="enterCrucibleBtn">Enter The Crucible</button>'+
+              '<button class="text-btn" id="skipCrucibleBtn">End run and view profile</button>'+
+            '</div>'
+          : '<button class="btn btn-submit btn-large" id="continueBtn">Continue</button>')+
+      '</div>'+
+    '</div>';
+
+  spawnBurst(document.getElementById('interstitialCard'), 20, [PALETTE[1],PALETTE[3],'#4CC9F0','#2EC4B6']);
+
+  if(isFinalTier){
+    document.getElementById('enterCrucibleBtn').addEventListener('click', ()=>{
+      STATE.crucibleLives=3;
+      STATE.crucibleRound=0;
+      STATE.maxTierReached=8;
+      loadCrucibleRound();
+    });
+    document.getElementById('skipCrucibleBtn').addEventListener('click', goToProfile);
+  } else {
+    document.getElementById('continueBtn').addEventListener('click', ()=>{
+      STATE.tier++;
+      STATE.levelInTier=0;
+      STATE.mistakesThisTier=0;
+      STATE.tierRunStats={attempts:0,correct:0,points:0};
+      loadTierPuzzle();
+    });
+  }
+}
+
+/* ============================================================
+   SECTION 12 — COGNITIVE PROFILE
+   ============================================================ */
+function tierNameSafe(idx){
+  if(idx===8) return 'The Crucible';
+  if(TIER_CONFIGS[idx]) return TIER_CONFIGS[idx].name;
+  return '—';
+}
+
+function goToProfile(){
+  STATE.screen='profile';
+  renderProfileScreen();
+}
+
+function renderProfileScreen(){
+  const rank=calcRank(STATE.score);
+  const rows=PROFILE_CATEGORIES.map(cat=>{
+    const s=STATE.profileStats[cat] || {attempts:0,correct:0,timeSum:0};
+    const acc = s.attempts ? Math.round(100*s.correct/s.attempts) : 0;
+    const avg = s.attempts ? (s.timeSum/s.attempts).toFixed(1)+'s' : '—';
+    return '<tr><td>'+cat+'</td><td>'+s.attempts+'</td><td>'+(s.attempts?acc+'%':'—')+'</td><td>'+avg+'</td></tr>';
+  }).join('');
+
+  app.innerHTML =
+    '<div class="screen profile-screen">'+
+      '<div class="profile-card">'+
+        '<div class="profile-rank">'+escapeHtml(rank)+'</div>'+
+        '<div class="profile-score">'+STATE.score.toLocaleString()+' pts</div>'+
+        '<table class="profile-table">'+
+          '<thead><tr><th>Category</th><th>Attempts</th><th>Accuracy</th><th>Avg time</th></tr></thead>'+
+          '<tbody>'+rows+'</tbody>'+
+        '</table>'+
+        '<div class="profile-meta">Probes used: '+STATE.totalProbesUsed+' &middot; Highest tier reached: '+escapeHtml(tierNameSafe(STATE.maxTierReached))+'</div>'+
+        '<div class="save-row">'+
+          '<input id="initialsInput" maxlength="4" placeholder="INITIALS" />'+
+          '<button class="btn btn-submit" id="saveScoreBtn">Save Score</button>'+
+        '</div>'+
+        '<div class="profile-actions">'+
+          '<button class="btn btn-secondary" id="viewLeaderboardBtn">Leaderboard</button>'+
+          '<button class="btn btn-secondary" id="restartBtn">New Run</button>'+
+        '</div>'+
+        '<div class="disclaimer">AXIOM is a self-test for sharp reasoning practice, built for fun and focus training. It is not a validated psychometric or IQ instrument — treat the rank as a game score, not a diagnosis of intelligence.</div>'+
+      '</div>'+
+    '</div>';
+
+  document.getElementById('saveScoreBtn').addEventListener('click', ()=>{
+    const input=document.getElementById('initialsInput');
+    let name=(input.value||'').trim().toUpperCase().slice(0,4);
+    if(!name) name='YOU';
+    const lb=getLeaderboard();
+    lb.push({ name, score:STATE.score, rank, date:Date.now() });
+    lb.sort((a,b)=>b.score-a.score);
+    saveLeaderboard(lb.slice(0,10));
+    showToast('Saved', 'success');
+    document.getElementById('saveScoreBtn').setAttribute('disabled','disabled');
+  });
+  document.getElementById('viewLeaderboardBtn').addEventListener('click', ()=>renderLeaderboardScreen(()=>renderProfileScreen()));
+  document.getElementById('restartBtn').addEventListener('click', ()=>{
+    resetRunState();
+    renderTitleScreen();
+  });
+}
+
+/* ============================================================
+   SECTION 13 — KEYBOARD CONTROLS
+   ============================================================ */
+document.addEventListener('keydown', (e)=>{
+  if(STATE.screen!=='puzzle') return;
+  if(document.getElementById('probeModal')) return;
+  const p=STATE.currentPuzzle;
+  if(!p || !document.getElementById('testOutputGrid')) return;
+
+  if(e.key>='1' && e.key<='6'){
+    const c=parseInt(e.key,10);
+    if(c<=p.ctx.paletteCount){
+      selectColor(c);
+      paintCell(STATE.cursor.r, STATE.cursor.c);
+    }
+  } else if(e.key==='0' || e.key==='Backspace'){
+    selectColor(0);
+    paintCell(STATE.cursor.r, STATE.cursor.c);
+  } else if(e.key==='ArrowUp'){ e.preventDefault(); moveCursor(-1,0); }
+  else if(e.key==='ArrowDown'){ e.preventDefault(); moveCursor(1,0); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); moveCursor(0,-1); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); moveCursor(0,1); }
+  else if(e.key==='Enter'){
+    const btn=document.getElementById('submitBtn');
+    if(btn) btn.click();
+  } else if(e.key.toLowerCase()==='p'){
+    const btn=document.getElementById('probeBtn');
+    if(btn && !btn.disabled) btn.click();
+  }
+});
+
+/* ============================================================
+   SECTION 14 — BOOTSTRAP
+   ============================================================ */
+try{
+  const m=localStorage.getItem('axiom_muted');
+  if(m==='1') STATE.muted=true;
+}catch(e){}
+
+renderTitleScreen();
+
+})();
+</script>
+</body>
+</html>
