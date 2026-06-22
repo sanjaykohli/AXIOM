@@ -3,294 +3,303 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>AXIOM — Find the rule. Trust nothing else.</title>
+<title>AXIOM</title>
+<script>
+(function(){
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#0A0D12"/><rect x="2" y="2" width="8" height="8" rx="1.5" fill="#F94144"/><rect x="12" y="2" width="8" height="8" rx="1.5" fill="#F9C74F"/><rect x="22" y="2" width="8" height="8" rx="1.5" fill="#577590"/><rect x="2" y="12" width="8" height="8" rx="1.5" fill="#90BE6D"/><rect x="12" y="12" width="8" height="8" rx="1.5" fill="#4CC9F0"/><rect x="22" y="12" width="8" height="8" rx="1.5" fill="#F94144"/><rect x="2" y="22" width="8" height="8" rx="1.5" fill="#43AA8B"/><rect x="12" y="22" width="8" height="8" rx="1.5" fill="#F3722C"/><rect x="22" y="22" width="8" height="8" rx="1.5" fill="#90BE6D"/></svg>';
+  const link=document.createElement('link');
+  link.rel='icon'; link.type='image/svg+xml';
+  link.href='data:image/svg+xml,'+encodeURIComponent(svg);
+  document.head.appendChild(link);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   AXIOM — DESIGN TOKENS
-   ============================================================ */
+/* =====================================================================
+   DESIGN TOKENS
+   ===================================================================== */
 :root{
-  --bg-base:#0A0D12;
-  --surface:#11151C;
-  --surface-elevated:#1B212B;
-  --surface-border:#2A3140;
-  --text-primary:#E8EDF2;
-  --text-muted:#8A93A3;
-  --accent:#4CC9F0;
-  --accent-soft:rgba(76,201,240,0.15);
-  --probe:#8B5CF6;
-  --probe-soft:rgba(139,92,246,0.15);
-  --success:#2EC4B6;
-  --success-soft:rgba(46,196,182,0.18);
-  --error:#FF5A5F;
-  --error-soft:rgba(255,90,95,0.18);
-  --warning:#F4A261;
-  --font-display:'Space Grotesk', sans-serif;
-  --font-mono:'JetBrains Mono', monospace;
-  --font-body:'Inter', sans-serif;
+  --bg:#0A0D12; --surface:#11151C; --elevated:#1B212B; --border:#2A3140;
+  --text:#E8EDF2; --muted:#8A93A3;
+  --accent:#4CC9F0; --accent-dim:rgba(76,201,240,0.14);
+  --hint:#8B5CF6; --hint-dim:rgba(139,92,246,0.12);
+  --ok:#2EC4B6; --ok-dim:rgba(46,196,182,0.15);
+  --err:#FF5A5F; --err-dim:rgba(255,90,95,0.15);
+  --font-head:'Space Grotesk',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-body:'Inter',sans-serif;
+  --radius:10px; --radius-lg:14px;
 }
 *{ box-sizing:border-box; }
-html,body{ margin:0; padding:0; }
-body{
-  background:var(--bg-base);
-  color:var(--text-primary);
-  font-family:var(--font-body);
-  min-height:100vh;
-  -webkit-font-smoothing:antialiased;
-}
+html,body{ margin:0; padding:0; min-height:100vh; }
+body{ background:var(--bg); color:var(--text); font-family:var(--font-body); line-height:1.6; -webkit-font-smoothing:antialiased; }
 #app{ min-height:100vh; display:flex; flex-direction:column; }
 button{ font-family:inherit; cursor:pointer; }
 input{ font-family:inherit; }
-::selection{ background:var(--accent-soft); }
-a{ color:var(--accent); }
 
-.hidden{ display:none !important; }
-
-/* Palette swatch colors */
-.pc-1{ background:#F94144; } .pc-2{ background:#F3722C; } .pc-3{ background:#F9C74F; }
-.pc-4{ background:#90BE6D; } .pc-5{ background:#43AA8B; } .pc-6{ background:#577590; }
-
-/* ============================================================
-   GENERIC LAYOUT
-   ============================================================ */
+/* =====================================================================
+   SHARED COMPONENTS
+   ===================================================================== */
 .screen{
   flex:1; display:flex; flex-direction:column; align-items:center;
-  width:100%; padding:24px 16px 48px; animation:screenIn 280ms ease-out;
+  padding:28px 16px 56px; animation:fadeUp 260ms ease-out;
 }
-@keyframes screenIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(5px); } to{ opacity:1; transform:none; } }
 
 .section-label{
-  font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
-  color:var(--text-muted); margin-bottom:8px;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--muted); margin-bottom:6px;
 }
 
+/* Buttons */
 .btn{
-  font-family:var(--font-display); font-weight:600; font-size:14px; letter-spacing:0.02em;
-  padding:12px 22px; border-radius:10px; border:1px solid transparent; transition:all 180ms ease-out;
-  color:var(--text-primary);
+  font-family:var(--font-head); font-weight:600; font-size:14px;
+  padding:11px 20px; border-radius:var(--radius); border:1px solid transparent;
+  transition:all 160ms ease-out; color:var(--text); line-height:1.2;
 }
 .btn:active{ transform:scale(0.97); }
-.btn-submit{ background:var(--accent); color:#06131A; box-shadow:0 4px 16px rgba(76,201,240,0.25); }
-.btn-submit:hover{ filter:brightness(1.08); }
-.btn-submit:disabled{ opacity:0.4; cursor:not-allowed; filter:none; }
-.btn-probe{ background:transparent; color:var(--probe); border-color:var(--probe); }
-.btn-probe:hover{ background:var(--probe-soft); }
-.btn-probe:disabled{ opacity:0.35; cursor:not-allowed; }
-.btn-secondary{ background:var(--surface-elevated); color:var(--text-primary); border-color:var(--surface-border); }
+.btn-primary{
+  background:var(--accent); color:#05131A;
+  box-shadow:0 4px 18px rgba(76,201,240,0.22);
+}
+.btn-primary:hover{ filter:brightness(1.1); }
+.btn-primary:disabled{ opacity:0.35; cursor:not-allowed; filter:none; transform:none; box-shadow:none; }
+.btn-secondary{ background:var(--elevated); border-color:var(--border); }
 .btn-secondary:hover{ border-color:var(--accent); }
-.btn-large{ padding:16px 34px; font-size:16px; }
-.text-btn{ background:transparent; border:none; color:var(--text-muted); font-family:var(--font-body); font-size:13px; text-decoration:underline; }
-.text-btn:hover{ color:var(--text-primary); }
-.icon-btn{ background:transparent; border:1px solid var(--surface-border); border-radius:8px; color:var(--text-primary); font-size:14px; padding:6px 9px; }
-.icon-btn:hover{ border-color:var(--accent); }
+.btn-ghost{ background:transparent; border-color:var(--border); color:var(--muted); font-size:13px; padding:8px 14px; }
+.btn-ghost:hover{ border-color:var(--muted); color:var(--text); }
+.btn-hint{ background:transparent; border-color:var(--hint); color:var(--hint); font-size:13px; padding:9px 14px; display:flex; align-items:center; gap:6px; }
+.btn-hint:hover{ background:var(--hint-dim); }
+.btn-hint:disabled{ opacity:0.3; cursor:not-allowed; pointer-events:none; }
+.btn-skip{ background:transparent; border-color:var(--border); color:var(--muted); font-size:13px; padding:9px 14px; }
+.btn-skip:hover{ border-color:var(--muted); color:var(--text); }
+.icon-btn{ background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--muted); padding:7px 10px; font-size:14px; transition:all 160ms; }
+.icon-btn:hover{ border-color:var(--muted); color:var(--text); }
+.text-link{ background:none; border:none; color:var(--muted); font-size:13px; text-decoration:underline; padding:4px 0; }
+.text-link:hover{ color:var(--text); }
 
-/* ============================================================
-   TITLE SCREEN
-   ============================================================ */
-.title-screen{ justify-content:center; align-items:center; text-align:center; }
-.title-wordmark{
-  font-family:var(--font-display); font-weight:700; font-size:clamp(48px,11vw,96px);
-  letter-spacing:0.06em; color:var(--text-primary); margin:0;
-  text-shadow:0 0 40px rgba(76,201,240,0.18);
-}
-.title-tagline{
-  font-family:var(--font-mono); color:var(--accent); font-size:14px; letter-spacing:0.08em;
-  margin-top:6px; margin-bottom:40px;
-}
-.title-grid-decoration{
-  display:grid; grid-template-columns:repeat(3,28px); grid-template-rows:repeat(3,28px);
-  gap:5px; margin-bottom:44px; opacity:0.9;
-}
-.title-grid-decoration .dcell{ border-radius:5px; animation:dcellShift 5s ease-in-out infinite; }
-.title-actions{ display:flex; flex-direction:column; gap:14px; align-items:center; }
-.title-best{ font-family:var(--font-mono); color:var(--text-muted); font-size:13px; margin-top:18px; }
-.footer-note{
-  font-family:var(--font-body); color:var(--text-muted); font-size:12px; max-width:440px;
-  margin-top:56px; line-height:1.6; opacity:0.75;
-}
-@keyframes dcellShift{ 0%,100%{ opacity:0.55; } 50%{ opacity:1; } }
-
-/* ============================================================
-   MODAL
-   ============================================================ */
-.modal-backdrop{
-  position:fixed; inset:0; background:rgba(5,7,10,0.78); backdrop-filter:blur(3px);
-  display:flex; align-items:center; justify-content:center; z-index:100; padding:16px;
-  animation:fadeIn 160ms ease-out;
+/* Modal */
+.modal-bg{
+  position:fixed; inset:0; background:rgba(5,7,10,0.8); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;
+  animation:fadeIn 150ms ease-out;
 }
 @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
 .modal{
-  background:var(--surface); border:1px solid var(--surface-border); border-radius:16px;
-  padding:26px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto;
-  box-shadow:0 24px 60px rgba(0,0,0,0.5);
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:28px; max-width:420px; width:100%; box-shadow:0 24px 64px rgba(0,0,0,0.55);
 }
-.modal-title{ font-family:var(--font-display); font-size:19px; font-weight:600; margin-bottom:6px; }
-.modal-sub{ font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:18px; }
-.modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
-.probe-modal .modal-title{ color:var(--probe); }
-.probe-result{ margin-top:18px; padding-top:18px; border-top:1px solid var(--surface-border); }
-.howitworks-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:14px; }
-.howitworks-list li{ font-size:13.5px; line-height:1.55; color:var(--text-primary); padding-left:26px; position:relative; }
-.howitworks-list li .num{
-  position:absolute; left:0; top:0; font-family:var(--font-mono); color:var(--accent); font-size:12px;
-}
+.modal-title{ font-family:var(--font-head); font-size:18px; font-weight:600; margin:0 0 8px; }
+.modal-body{ font-size:14px; color:var(--muted); line-height:1.65; margin-bottom:20px; }
+.modal-actions{ display:flex; gap:10px; justify-content:flex-end; }
+.checkbox-label{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); cursor:pointer; margin:0 0 18px; }
+.checkbox-label input{ accent-color:var(--accent); width:14px; height:14px; }
 
-/* ============================================================
-   TOP BAR (puzzle screen)
-   ============================================================ */
-.puzzle-screen{ padding-top:0; max-width:880px; margin:0 auto; width:100%; }
-.topbar{
-  width:100%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
-  padding:14px 16px; background:var(--surface); border-bottom:1px solid var(--surface-border);
-  position:sticky; top:0; z-index:10;
-}
-.topbar-left{ display:flex; flex-direction:column; gap:1px; min-width:0; }
-.tier-name{ font-family:var(--font-display); font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.level-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); }
-.timer{
-  font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--text-primary);
-  min-width:62px; text-align:center; transition:color 200ms;
-}
-.timer.timer-warning{ color:var(--warning); }
-.timer.timer-critical{ color:var(--error); animation:timerPulse 0.6s ease-in-out infinite; }
-@keyframes timerPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
-.topbar-right{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-.lives{ display:flex; gap:5px; }
-.life-dot{ width:9px; height:9px; border-radius:50%; background:var(--accent); transition:background 200ms,transform 200ms; }
-.life-dot.lost{ background:var(--surface-border); transform:scale(0.8); }
-.streak{ font-family:var(--font-mono); font-size:12px; color:var(--text-muted); white-space:nowrap; }
-.score{ font-family:var(--font-mono); font-size:15px; font-weight:700; color:var(--accent); white-space:nowrap; }
-
-/* ============================================================
-   PUZZLE BODY
-   ============================================================ */
-.puzzle-body{ width:100%; padding:24px 16px 8px; display:flex; flex-direction:column; gap:28px; align-items:center; }
-.examples-section{ width:100%; max-width:760px; }
-.examples-row{ display:flex; flex-wrap:wrap; gap:22px; justify-content:center; }
-.example-pair{ display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--surface-border); border-radius:12px; padding:14px; }
-.mini-grid-block{ display:flex; flex-direction:column; align-items:center; gap:6px; }
-.mini-arrow{ color:var(--accent); font-size:20px; font-family:var(--font-mono); }
-.flash-note{ font-family:var(--font-mono); font-size:12px; color:var(--warning); text-align:center; margin-top:10px; }
-
-.test-section{ width:100%; max-width:760px; display:flex; flex-direction:column; align-items:center; gap:22px; }
-.test-grids{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; justify-content:center; }
-.grid-block{ display:flex; flex-direction:column; align-items:center; gap:6px; }
-.arrow-glyph{ font-family:var(--font-mono); font-size:24px; color:var(--accent); }
-
-.grid-wrap{ display:flex; justify-content:center; }
-.grid{
-  display:grid; gap:6px; background:var(--surface); padding:10px; border-radius:12px;
-  border:1px solid var(--surface-border); transition:box-shadow 220ms, border-color 220ms;
-  width:min(260px,68vw); aspect-ratio:1/1;
-}
-.grid.grid-editable{ border-color:var(--surface-border); }
-.cell{
-  border-radius:6px; border:1px solid var(--surface-border); transition:transform 150ms ease-out, box-shadow 150ms ease-out, background 150ms;
-  width:100%; height:100%;
-}
-.grid-editable .cell{ cursor:pointer; }
-.grid-editable .cell:hover{ transform:scale(1.05); box-shadow:0 0 0 2px rgba(76,201,240,0.35); }
-.cell.cell-empty{ background:var(--surface-elevated); }
-.cell.cell-cursor{ box-shadow:0 0 0 2px var(--accent); transform:scale(1.05); z-index:2; }
-.cell.cell-pulse{ transform:scale(1.12); }
-@keyframes shake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 50%{ transform:translateX(4px); } 75%{ transform:translateX(-3px); } }
-.grid.grid-error{ animation:shake 0.36s ease-in-out 2; box-shadow:0 0 0 2px var(--error); border-color:var(--error); }
-.grid.grid-success{ box-shadow:0 0 0 2px var(--success); border-color:var(--success); }
-
-.palette-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
-.swatch{
-  width:38px; height:38px; border-radius:9px; border:2px solid transparent; transition:transform 150ms, border-color 150ms;
-  position:relative;
-}
-.swatch:hover{ transform:translateY(-2px); }
-.swatch-selected{ border-color:var(--text-primary); box-shadow:0 0 0 3px rgba(232,237,242,0.18); }
-.swatch-eraser{ background:var(--surface-elevated); color:var(--text-muted); font-size:14px; border:2px dashed var(--surface-border); display:flex; align-items:center; justify-content:center; }
-.swatch-eraser.swatch-selected{ border-color:var(--text-primary); border-style:solid; }
-
-.actions-row{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:center; }
-.probe-token-count{ font-family:var(--font-mono); }
-
+/* Toast */
 .toast{
-  position:fixed; top:18px; left:50%; transform:translateX(-50%) translateY(-12px); opacity:0;
-  padding:10px 20px; border-radius:10px; font-family:var(--font-mono); font-weight:700; font-size:14px;
-  z-index:200; transition:opacity 220ms, transform 220ms; pointer-events:none;
+  position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-14px);
+  padding:9px 20px; border-radius:var(--radius); font-family:var(--font-mono); font-size:13px; font-weight:700;
+  opacity:0; pointer-events:none; z-index:300; transition:opacity 200ms, transform 200ms;
+  white-space:nowrap;
 }
 .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-.toast.toast-success{ background:var(--success-soft); color:var(--success); border:1px solid var(--success); }
-.toast.toast-error{ background:var(--error-soft); color:var(--error); border:1px solid var(--error); }
+.toast-ok{ background:var(--ok-dim); color:var(--ok); border:1px solid var(--ok); }
+.toast-err{ background:var(--err-dim); color:var(--err); border:1px solid var(--err); }
 
+/* =====================================================================
+   TITLE SCREEN
+   ===================================================================== */
+.title-screen{ justify-content:center; align-items:center; text-align:center; gap:0; }
+.title-deco{ display:grid; grid-template-columns:repeat(3,26px); grid-template-rows:repeat(3,26px); gap:5px; margin-bottom:36px; }
+.title-deco .dc{ border-radius:5px; }
+.title-logo{ font-family:var(--font-head); font-weight:700; font-size:clamp(52px,13vw,100px); letter-spacing:0.06em; margin:0; line-height:1; }
+.title-tag{ font-family:var(--font-mono); font-size:13px; color:var(--accent); letter-spacing:0.08em; margin:8px 0 44px; }
+.title-actions{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+.title-note{ font-size:12px; color:var(--muted); max-width:420px; margin-top:48px; line-height:1.7; opacity:0.75; }
+
+/* =====================================================================
+   TOP BAR
+   ===================================================================== */
+.topbar{
+  width:100%; display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; background:var(--surface); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:30; gap:12px;
+}
+.topbar-info{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.topbar-tier{ font-family:var(--font-head); font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.topbar-level{ font-family:var(--font-mono); font-size:11px; color:var(--muted); }
+.topbar-right{ display:flex; gap:8px; align-items:center; flex-shrink:0; }
+
+/* =====================================================================
+   PUZZLE SCREEN
+   ===================================================================== */
+.puzzle-screen{ padding:0; max-width:860px; margin:0 auto; width:100%; }
+.puzzle-body{ width:100%; padding:22px 16px 16px; display:flex; flex-direction:column; align-items:center; gap:24px; }
+
+/* Tutorial banner */
 .tutorial-banner{
-  width:100%; max-width:760px; background:var(--accent-soft); border:1px solid var(--accent);
-  border-radius:12px; padding:14px 18px; font-size:13.5px; line-height:1.6; color:var(--text-primary);
-  display:flex; flex-direction:column; gap:6px;
+  width:100%; max-width:740px; background:var(--accent-dim); border:1px solid var(--accent);
+  border-radius:var(--radius); padding:14px 18px; font-size:14px; line-height:1.7; color:var(--text);
 }
-.tutorial-banner strong{ color:var(--accent); font-family:var(--font-display); }
+.tutorial-banner strong{ color:var(--accent); font-family:var(--font-head); }
 
-/* ============================================================
-   INTERSTITIAL / TIER COMPLETE / CRUCIBLE GATE
-   ============================================================ */
-.interstitial-screen{ justify-content:center; align-items:center; text-align:center; }
-.interstitial-card{
-  background:var(--surface); border:1px solid var(--surface-border); border-radius:18px;
-  padding:42px 36px; max-width:440px; width:100%; position:relative; overflow:hidden;
+/* Examples */
+.examples-section{ width:100%; max-width:740px; }
+.examples-row{ display:flex; flex-wrap:wrap; gap:18px; justify-content:center; margin-top:4px; }
+.example-pair{
+  display:flex; align-items:center; gap:10px; background:var(--surface);
+  border:1px solid var(--border); border-radius:var(--radius); padding:12px;
+  transition:border-color 300ms;
 }
-.interstitial-eyebrow{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; color:var(--text-muted); text-transform:uppercase; }
-.interstitial-title{ font-family:var(--font-display); font-size:28px; font-weight:700; margin:8px 0 18px; }
-.interstitial-stats{ display:flex; justify-content:center; gap:28px; margin-bottom:26px; }
-.istat{ display:flex; flex-direction:column; gap:2px; }
-.istat-value{ font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--accent); }
-.istat-label{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; }
-.burst-particle{ position:absolute; border-radius:50%; pointer-events:none; animation:burstOut 800ms ease-out forwards; }
-@keyframes burstOut{ from{ opacity:1; transform:translate(0,0) scale(1); } to{ opacity:0; transform:var(--end-transform) scale(0.3); } }
+.example-pair.hint1-active{ border-color:var(--hint); }
+.mini-block{ display:flex; flex-direction:column; align-items:center; gap:5px; }
+.mini-arrow{ color:var(--accent); font-size:18px; font-family:var(--font-mono); }
+.flash-note{ font-family:var(--font-mono); font-size:12px; color:var(--hint); text-align:center; margin-top:10px; }
 
-/* ============================================================
-   PROFILE SCREEN
-   ============================================================ */
-.profile-screen{ align-items:center; }
-.profile-card{ width:100%; max-width:560px; display:flex; flex-direction:column; align-items:center; gap:18px; }
-.profile-rank{ font-family:var(--font-display); font-size:14px; letter-spacing:0.1em; text-transform:uppercase; color:var(--probe); }
-.profile-score{ font-family:var(--font-mono); font-size:42px; font-weight:700; color:var(--accent); }
-.profile-table{ width:100%; border-collapse:collapse; font-size:13px; }
-.profile-table th{ text-align:left; font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); padding:8px 10px; border-bottom:1px solid var(--surface-border); }
-.profile-table td{ padding:9px 10px; border-bottom:1px solid var(--surface-border); font-family:var(--font-body); }
-.profile-table tr:last-child td{ border-bottom:none; }
-.profile-meta{ font-family:var(--font-mono); font-size:12px; color:var(--text-muted); text-align:center; }
-.save-row{ display:flex; gap:10px; width:100%; }
-.save-row input{
-  flex:1; background:var(--surface-elevated); border:1px solid var(--surface-border); border-radius:10px;
-  color:var(--text-primary); padding:11px 14px; font-family:var(--font-mono); letter-spacing:0.08em; text-transform:uppercase;
+/* Hint bar */
+.hint-bar{
+  width:100%; max-width:740px; background:var(--hint-dim); border:1px solid rgba(139,92,246,0.35);
+  border-radius:var(--radius); padding:13px 16px; display:flex; flex-direction:column; gap:8px;
 }
-.save-row input:focus{ outline:none; border-color:var(--accent); }
-.profile-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
-.disclaimer{ font-size:11.5px; color:var(--text-muted); text-align:center; line-height:1.6; max-width:440px; opacity:0.8; margin-top:6px; }
+.hint-line{ font-size:13.5px; line-height:1.6; color:var(--text); }
+.hint-line strong{ color:var(--hint); font-family:var(--font-head); }
 
-/* ============================================================
-   LEADERBOARD
-   ============================================================ */
-.leaderboard-screen{ align-items:center; }
-.leaderboard-table{ width:100%; max-width:480px; border-collapse:collapse; }
-.leaderboard-table th{ text-align:left; font-family:var(--font-mono); font-size:10px; text-transform:uppercase; color:var(--text-muted); padding:8px 10px; border-bottom:1px solid var(--surface-border); }
-.leaderboard-table td{ padding:10px; border-bottom:1px solid var(--surface-border); font-size:13.5px; }
-.leaderboard-table td.lb-rank{ font-family:var(--font-mono); color:var(--text-muted); width:28px; }
-.leaderboard-table td.lb-score{ font-family:var(--font-mono); font-weight:700; color:var(--accent); text-align:right; }
-.lb-empty{ color:var(--text-muted); font-size:13px; padding:30px 0; }
+/* Test area */
+.test-section{ width:100%; max-width:740px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+.test-grids{ display:flex; align-items:center; gap:18px; flex-wrap:wrap; justify-content:center; }
+.grid-block{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.grid-block .section-label{ margin-bottom:2px; }
+.grid-block .grid-sub{ font-size:12px; color:var(--muted); font-family:var(--font-body); }
+.arrow-glyph{ font-size:22px; color:var(--accent); font-family:var(--font-mono); line-height:1; flex-shrink:0; }
 
-/* ============================================================
+/* Grid */
+.grid-wrap{ display:flex; justify-content:center; }
+.grid{
+  display:grid; gap:5px; padding:10px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); transition:border-color 220ms, box-shadow 220ms;
+  width:min(240px,44vw); aspect-ratio:1;
+}
+.grid.grid-sm{ width:min(150px,35vw); }
+.grid.grid-editable{ border-color:rgba(76,201,240,0.3); }
+.grid.grid-locked{ border-color:rgba(46,196,182,0.4); cursor:default; }
+.grid.state-ok{ border-color:var(--ok); box-shadow:0 0 0 2px rgba(46,196,182,0.25); }
+.grid.state-err{ border-color:var(--err); box-shadow:0 0 0 2px rgba(255,90,95,0.2); }
+.grid.state-hint3{ border-color:var(--ok); box-shadow:0 0 0 3px rgba(46,196,182,0.2); }
+
+.cell{
+  border-radius:5px; border:1px solid var(--border); transition:transform 130ms ease-out, box-shadow 130ms ease-out, background 130ms;
+  width:100%; height:100%; min-width:0; min-height:0;
+}
+.grid-editable .cell:not(.cell-locked){ cursor:pointer; }
+.grid-editable .cell:not(.cell-locked):hover{ transform:scale(1.07); box-shadow:0 0 0 2px rgba(76,201,240,0.4); }
+.cell-empty{ background:var(--elevated); }
+.cell-cursor{ box-shadow:0 0 0 2px var(--accent) !important; }
+.cell-highlight{ box-shadow:0 0 0 3px rgba(76,201,240,0.85) !important; animation:hintGlow 2s ease-in-out infinite; }
+@keyframes hintGlow{ 0%,100%{ box-shadow:0 0 0 3px rgba(76,201,240,0.85); } 50%{ box-shadow:0 0 0 4px rgba(76,201,240,0.35); } }
+.cell-wrong{ animation:pulseErr 0.4s ease-in-out; }
+@keyframes pulseErr{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.12); box-shadow:0 0 0 4px rgba(255,90,95,0.55); } }
+.cell-revealed{ box-shadow:0 0 0 2px var(--ok) !important; transition:background 250ms ease-out, box-shadow 250ms; }
+
+/* Palette */
+.palette-row{ display:flex; gap:9px; flex-wrap:wrap; justify-content:center; }
+.swatch{
+  width:clamp(30px,8vw,38px); height:clamp(30px,8vw,38px); border-radius:8px;
+  border:2px solid transparent; cursor:pointer; transition:transform 130ms, border-color 130ms, box-shadow 130ms;
+  display:flex; align-items:center; justify-content:center;
+}
+.swatch:hover{ transform:translateY(-2px); }
+.swatch.active{ border-color:var(--text); box-shadow:0 0 0 3px rgba(232,237,242,0.15); }
+.swatch-erase{ background:var(--elevated); border:2px dashed var(--border); color:var(--muted); font-size:13px; }
+.swatch-erase.active{ border-style:solid; border-color:var(--text); }
+
+/* Progress dots */
+.progress-dots{ display:flex; gap:7px; justify-content:center; align-items:center; padding:4px 0; }
+.dot{ width:7px; height:7px; border-radius:50%; border:1.5px solid var(--border); background:transparent; transition:all 220ms; }
+.dot.done{ background:rgba(76,201,240,0.5); border-color:rgba(76,201,240,0.5); }
+.dot.current{ background:var(--accent); border-color:var(--accent); transform:scale(1.25); box-shadow:0 0 0 3px rgba(76,201,240,0.18); }
+
+/* Actions */
+.actions-row{ width:100%; display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:space-between; }
+.actions-left{ display:flex; gap:8px; align-items:center; }
+.actions-right{ display:flex; gap:8px; align-items:center; }
+.hint-dots{ display:flex; gap:3px; }
+.hdot{ width:6px; height:6px; border-radius:50%; background:var(--hint); transition:opacity 200ms; }
+.hdot.used{ opacity:0.2; }
+
+/* =====================================================================
+   RULE REVEAL PANEL
+   ===================================================================== */
+.rule-reveal{
+  position:fixed; inset-x:0; bottom:0;
+  background:var(--surface); border-top:1px solid var(--border);
+  padding:20px 20px 32px; z-index:100; max-height:80vh; overflow-y:auto;
+  animation:slideUp 280ms cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes slideUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
+.reveal-inner{ max-width:740px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
+.reveal-status{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-head); font-size:16px; font-weight:600;
+}
+.reveal-status.ok .reveal-icon{ color:var(--ok); } .reveal-status.err .reveal-icon{ color:var(--err); }
+.reveal-icon{ font-size:20px; }
+.reveal-rule{ font-size:14px; line-height:1.65; color:var(--text); }
+.reveal-rule strong{ color:var(--accent); font-family:var(--font-head); }
+.reveal-example{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.reveal-example-label{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); white-space:nowrap; }
+.reveal-bar{ height:2px; background:var(--elevated); border-radius:1px; overflow:hidden; }
+.reveal-bar-fill{ height:100%; background:var(--accent); transform-origin:left; animation:barShrink 4s linear forwards; }
+@keyframes barShrink{ from{ transform:scaleX(1); } to{ transform:scaleX(0); } }
+.reveal-foot{ display:flex; justify-content:flex-end; }
+
+/* =====================================================================
+   TIER COMPLETE / END SCREEN
+   ===================================================================== */
+.tier-screen{ justify-content:center; align-items:center; }
+.tier-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:40px 32px; max-width:420px; width:100%; display:flex; flex-direction:column;
+  align-items:center; gap:18px; text-align:center; position:relative; overflow:hidden;
+}
+.tier-eyebrow{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); }
+.tier-name{ font-family:var(--font-head); font-size:24px; font-weight:700; line-height:1.2; }
+.tier-sub{ font-size:13.5px; color:var(--muted); line-height:1.6; }
+.tier-next-label{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); }
+.tier-next-name{ font-family:var(--font-head); font-size:16px; font-weight:600; color:var(--accent); }
+.tier-actions{ display:flex; flex-direction:column; gap:12px; width:100%; }
+.burst{ position:absolute; border-radius:50%; pointer-events:none; animation:burst 0.7s ease-out forwards; }
+@keyframes burst{ from{ opacity:0.9; transform:translate(0,0) scale(1); } to{ opacity:0; transform:var(--et) scale(0.2); } }
+
+/* =====================================================================
+   HOW IT WORKS
+   ===================================================================== */
+.howitworks{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:14px; }
+.howitworks li{ font-size:13.5px; line-height:1.65; padding-left:28px; position:relative; }
+.howitworks li .n{ position:absolute; left:0; font-family:var(--font-mono); color:var(--accent); font-size:12px; }
+
+/* =====================================================================
    RESPONSIVE
-   ============================================================ */
-@media (max-width:560px){
-  .title-wordmark{ font-size:44px; }
-  .topbar{ padding:10px 12px; }
-  .timer{ font-size:18px; }
-  .puzzle-body{ padding:18px 10px 8px; gap:20px; }
-  .grid{ width:min(220px,72vw); }
-  .example-pair{ padding:10px; gap:6px; }
-  .examples-row{ gap:12px; }
-  .swatch{ width:32px; height:32px; }
-  .interstitial-card{ padding:30px 22px; }
-  .profile-score{ font-size:32px; }
+   ===================================================================== */
+@media (max-width:540px){
+  .topbar{ padding:11px 14px; }
+  .topbar-tier{ font-size:13px; }
+  .puzzle-body{ padding:16px 10px 16px; gap:18px; }
+  .grid{ width:min(200px,44vw); gap:4px; padding:8px; }
+  .grid.grid-sm{ width:min(120px,32vw); }
+  .example-pair{ padding:9px; gap:7px; }
+  .actions-row{ gap:8px; }
+  .tier-card{ padding:30px 20px; }
+  .reveal-rule{ font-size:13px; }
+  .test-grids{ gap:10px; }
+  .arrow-glyph{ font-size:18px; }
+}
+@media (max-width:380px){
+  .test-grids{ flex-direction:column; }
+  .arrow-glyph{ transform:rotate(90deg); }
+  .grid{ width:min(220px,82vw); }
 }
 </style>
 </head>
@@ -301,1453 +310,919 @@ a{ color:var(--accent); }
 (function(){
 "use strict";
 
-/* ============================================================
-   SECTION 1 — CONFIG / CONSTANTS
-   ============================================================ */
+/* =====================================================================
+   SECTION 1: CONFIG & CONSTANTS
+   ===================================================================== */
 const PALETTE = ['#F94144','#F3722C','#F9C74F','#90BE6D','#43AA8B','#577590'];
+const COLOR_NAMES = ['Red','Orange','Yellow','Green','Teal','Slate'];
 
 const TIER_CONFIGS = [
-  { idx:0, name:'Onboarding',            sizeRange:[3,3], paletteRange:[2,2], examplesRange:[2,2], timeLimit:null, puzzleCount:1,  category:'Direct' },
-  { idx:1, name:'Direct Transforms',     sizeRange:[3,3], paletteRange:[2,2], examplesRange:[2,2], timeLimit:null, puzzleCount:5,  category:'Direct' },
-  { idx:2, name:'Composite Transforms',  sizeRange:[4,4], paletteRange:[3,3], examplesRange:[2,2], timeLimit:60,   puzzleCount:7,  category:'Composite' },
-  { idx:3, name:'Conditional Logic',     sizeRange:[5,5], paletteRange:[4,4], examplesRange:[2,3], timeLimit:45,   puzzleCount:8,  category:'Conditional' },
-  { idx:4, name:'Memory Flash',          sizeRange:[4,5], paletteRange:[3,4], examplesRange:[2,2], timeLimit:40,   puzzleCount:8,  category:'Memory', memoryFlash:true, flashMs:4000 },
-  { idx:5, name:'Active Inference',      sizeRange:[5,5], paletteRange:[4,4], examplesRange:[1,1], timeLimit:50,   puzzleCount:8,  category:'Probe', probes:3 },
-  { idx:6, name:'Decoy & Revision',      sizeRange:[5,5], paletteRange:[4,5], examplesRange:[2,2], timeLimit:30,   puzzleCount:8,  category:'Decoy', decoy:true },
-  { idx:7, name:'Compound Chains',       sizeRange:[6,7], paletteRange:[5,6], examplesRange:[2,2], timeLimit:30,   puzzleCount:10, category:'Compound' },
+  { idx:0, sizeRange:[3,3], paletteRange:[2,2], examplesRange:[2,2], puzzleCount:1,  category:'Direct' },
+  { idx:1, sizeRange:[3,3], paletteRange:[2,2], examplesRange:[2,2], puzzleCount:5,  category:'Direct' },
+  { idx:2, sizeRange:[4,4], paletteRange:[3,3], examplesRange:[2,2], puzzleCount:7,  category:'Composite' },
+  { idx:3, sizeRange:[5,5], paletteRange:[4,4], examplesRange:[2,3], puzzleCount:8,  category:'Conditional' },
+  { idx:4, sizeRange:[4,5], paletteRange:[3,4], examplesRange:[2,2], puzzleCount:8,  category:'Memory', memoryFlash:true, flashMs:4000 },
+  { idx:5, sizeRange:[5,5], paletteRange:[4,4], examplesRange:[1,1], puzzleCount:8,  category:'SingleExample', singleExample:true },
+  { idx:6, sizeRange:[5,5], paletteRange:[4,5], examplesRange:[2,2], puzzleCount:8,  category:'Decoy', decoy:true },
+  { idx:7, sizeRange:[6,7], paletteRange:[5,6], examplesRange:[2,2], puzzleCount:10, category:'Compound' },
 ];
 
-const BASE_POINTS = { 1:100, 2:150, 3:200, 4:250, 5:300, 6:350, 7:450, 8:500 };
-
-const RANKS = [
-  { min:25000, name:'AXIOM' },
-  { min:15000, name:'Virtuoso' },
-  { min:7000,  name:'Strategist' },
-  { min:3000,  name:'Analyst' },
-  { min:1000,  name:'Apprentice' },
-  { min:0,     name:'Novice' },
+const TIER_DISPLAY = [
+  { name:'Introduction',          sub:'Learn how the game works' },
+  { name:'Simple Transforms',     sub:'Each puzzle has a single-step rule' },
+  { name:'Combining Rules',       sub:'Two transforms applied in sequence' },
+  { name:'Logic and Conditions',  sub:'Rules that depend on cell counts or regions' },
+  { name:'From Memory',           sub:'Examples disappear before you can answer' },
+  { name:'Tough Deduction',       sub:'Only one example is provided' },
+  { name:'Misleading Examples',   sub:'The first example may point you the wrong way' },
+  { name:'Multi-Step Chains',     sub:'Three or more transforms chained together' },
+  { name:'Endless Mode',          sub:'All rule types, unlimited puzzles' },
 ];
 
-const PROFILE_CATEGORIES = ['Direct','Composite','Conditional','Memory','Probe','Decoy','Compound'];
-
-/* ============================================================
-   SECTION 2 — UTILITIES
-   ============================================================ */
-function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
-
-function cloneGrid(grid){ return grid.map(row=>row.slice()); }
-
-function makeGrid(size, fill){
-  const g=[];
-  for(let i=0;i<size;i++){ g.push(new Array(size).fill(fill)); }
-  return g;
-}
-
-function randomGrid(size, paletteCount){
-  const g=[];
-  for(let i=0;i<size;i++){
-    const row=[];
-    for(let j=0;j<size;j++){ row.push(randInt(1,paletteCount)); }
-    g.push(row);
-  }
-  return g;
-}
-
+/* =====================================================================
+   SECTION 2: UTILITIES
+   ===================================================================== */
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function cloneGrid(g){ return g.map(r=>r.slice()); }
+function makeGrid(n,v){ const g=[]; for(let i=0;i<n;i++) g.push(new Array(n).fill(v)); return g; }
+function randomGrid(n,pc){ const g=[]; for(let i=0;i<n;i++){ const r=[]; for(let j=0;j<n;j++) r.push(randInt(1,pc)); g.push(r); } return g; }
 function gridsEqual(a,b){
-  if(!a || !b) return false;
-  if(a.length!==b.length) return false;
-  for(let i=0;i<a.length;i++){
-    if(a[i].length!==b[i].length) return false;
-    for(let j=0;j<a[i].length;j++){ if(a[i][j]!==b[i][j]) return false; }
-  }
+  if(!a||!b||a.length!==b.length) return false;
+  for(let i=0;i<a.length;i++){ if(a[i].length!==b[i].length) return false; for(let j=0;j<a[i].length;j++) if(a[i][j]!==b[i][j]) return false; }
   return true;
 }
-
-function countColor(grid, c){
-  let n=0;
-  for(const row of grid){ for(const v of row){ if(v===c) n++; } }
-  return n;
-}
+function countColor(g,c){ let n=0; for(const r of g) for(const v of r) if(v===c) n++; return n; }
 
 function connectedComponents(grid){
-  const R=grid.length, C=grid[0].length;
+  const R=grid.length,C=grid[0].length;
   const seen=Array.from({length:R},()=>new Array(C).fill(false));
   const comps=[];
-  for(let i=0;i<R;i++){
-    for(let j=0;j<C;j++){
-      if(seen[i][j]) continue;
-      const color=grid[i][j];
-      const stack=[[i,j]]; seen[i][j]=true; const cells=[];
-      while(stack.length){
-        const [r,c]=stack.pop(); cells.push([r,c]);
-        const neigh=[[r-1,c],[r+1,c],[r,c-1],[r,c+1]];
-        for(const [nr,nc] of neigh){
-          if(nr>=0 && nr<R && nc>=0 && nc<C && !seen[nr][nc] && grid[nr][nc]===color){
-            seen[nr][nc]=true; stack.push([nr,nc]);
-          }
-        }
+  for(let i=0;i<R;i++) for(let j=0;j<C;j++){
+    if(seen[i][j]) continue;
+    const color=grid[i][j]; const stack=[[i,j]]; seen[i][j]=true; const cells=[];
+    while(stack.length){ const [r,c]=stack.pop(); cells.push([r,c]);
+      for(const [nr,nc] of [[r-1,c],[r+1,c],[r,c-1],[r,c+1]]){
+        if(nr>=0&&nr<R&&nc>=0&&nc<C&&!seen[nr][nc]&&grid[nr][nc]===color){ seen[nr][nc]=true; stack.push([nr,nc]); }
       }
-      comps.push({color, cells});
     }
+    comps.push({color,cells});
   }
   return comps;
 }
 
-function escapeHtml(str){
-  const d=document.createElement('div');
-  d.textContent = str==null ? '' : String(str);
-  return d.innerHTML;
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
+
+function getChangedPositions(inputGrid, outputGrid){
+  const set=new Set();
+  for(let r=0;r<inputGrid.length;r++) for(let c=0;c<inputGrid[r].length;c++) if(inputGrid[r][c]!==outputGrid[r][c]) set.add(r+','+c);
+  return set;
 }
 
-function formatTime(seconds){
-  return Math.max(0, Math.ceil(seconds)) + 's';
-}
-
-/* ============================================================
-   SECTION 3 — RULE ENGINE (composable primitive transforms)
-   ============================================================ */
+/* =====================================================================
+   SECTION 3: RULE ENGINE
+   ===================================================================== */
 const RULES = {
-
-  mirrorH:{
-    apply(grid){ return grid.map(row=>row.slice().reverse()); },
-    randomParams(){ return {}; },
-    validate(grid, params, ctx){ return !gridsEqual(RULES.mirrorH.apply(grid,params,ctx), grid); }
-  },
-
-  mirrorV:{
-    apply(grid){ return grid.slice().reverse().map(row=>row.slice()); },
-    randomParams(){ return {}; },
-    validate(grid, params, ctx){ return !gridsEqual(RULES.mirrorV.apply(grid,params,ctx), grid); }
-  },
-
-  rotate90:{
-    apply(grid){
-      const n=grid.length; const out=makeGrid(n,0);
-      for(let i=0;i<n;i++){ for(let j=0;j<n;j++){ out[j][n-1-i]=grid[i][j]; } }
-      return out;
-    },
-    randomParams(){ return {}; },
-    validate(grid, params, ctx){ return !gridsEqual(RULES.rotate90.apply(grid,params,ctx), grid); }
-  },
-
-  rotate180:{
-    apply(grid){
-      const n=grid.length; const out=makeGrid(n,0);
-      for(let i=0;i<n;i++){ for(let j=0;j<n;j++){ out[n-1-i][n-1-j]=grid[i][j]; } }
-      return out;
-    },
-    randomParams(){ return {}; },
-    validate(grid, params, ctx){ return !gridsEqual(RULES.rotate180.apply(grid,params,ctx), grid); }
-  },
-
-  invert:{
-    apply(grid, params, ctx){
-      const n = ctx.paletteCount;
-      return grid.map(row=>row.map(v=> n+1-v));
-    },
-    randomParams(){ return {}; },
-    validate(grid, params, ctx){
-      if(ctx.paletteCount<2) return false;
-      return !gridsEqual(RULES.invert.apply(grid,params,ctx), grid);
-    }
-  },
-
-  shiftRows:{
-    apply(grid, params){
-      const k=params.k; const R=grid.length; const out=new Array(R);
-      for(let i=0;i<R;i++){ out[((i+k)%R+R)%R]=grid[i].slice(); }
-      return out;
-    },
-    randomParams(ctx){ if(ctx.size<2) return null; return { k: randInt(1, ctx.size-1) }; },
-    validate(grid, params, ctx){ return !gridsEqual(RULES.shiftRows.apply(grid,params,ctx), grid); }
-  },
-
-  shiftCols:{
-    apply(grid, params){
-      const k=params.k; const R=grid.length, C=grid[0].length;
-      const out=grid.map(row=>new Array(C).fill(0));
-      for(let i=0;i<R;i++){ for(let j=0;j<C;j++){ out[i][((j+k)%C+C)%C]=grid[i][j]; } }
-      return out;
-    },
-    randomParams(ctx){ if(ctx.size<2) return null; return { k: randInt(1, ctx.size-1) }; },
-    validate(grid, params, ctx){ return !gridsEqual(RULES.shiftCols.apply(grid,params,ctx), grid); }
-  },
-
-  swapColors:{
-    apply(grid, params){
-      const {a,b}=params;
-      return grid.map(row=>row.map(v=> v===a?b : v===b?a : v));
-    },
-    randomParams(ctx){
-      if(ctx.paletteCount<2) return null;
-      const a=randInt(1,ctx.paletteCount);
-      let b; do{ b=randInt(1,ctx.paletteCount); }while(b===a);
-      return {a,b};
-    },
-    validate(grid, params){ return countColor(grid,params.a)>=1 && countColor(grid,params.b)>=1; }
-  },
-
-  parity:{
-    apply(grid, params){
-      const {colorX, colorEven, colorOdd}=params;
-      const cnt=countColor(grid,colorX);
-      const target = (cnt%2===0) ? colorEven : colorOdd;
-      return grid.map(row=>row.map(v=> v===colorX ? target : v));
-    },
-    randomParams(ctx){
-      const colorX=randInt(1,ctx.paletteCount);
-      const colorEven=randInt(1,ctx.paletteCount);
-      let colorOdd; do{ colorOdd=randInt(1,ctx.paletteCount); }while(colorOdd===colorEven);
-      return {colorX,colorEven,colorOdd};
-    },
-    validate(grid, params){ return countColor(grid,params.colorX)>=1; }
-  },
-
-  region:{
-    apply(grid, params){
-      const comps=connectedComponents(grid);
-      let best=comps[0];
-      for(const c of comps){ if(c.cells.length>best.cells.length) best=c; }
-      const out=cloneGrid(grid);
-      for(const [r,c] of best.cells){ out[r][c]=params.newColor; }
-      return out;
-    },
-    randomParams(ctx){ return { newColor: randInt(1,ctx.paletteCount) }; },
-    validate(grid){
-      const comps=connectedComponents(grid);
-      const sizes=comps.map(c=>c.cells.length).sort((a,b)=>b-a);
-      return sizes.length===1 || sizes[0]>sizes[1];
-    }
-  },
-
-  border:{
-    apply(grid, params){
-      const R=grid.length, C=grid[0].length;
-      return grid.map((row,i)=>row.map((v,j)=> (i===0||i===R-1||j===0||j===C-1) ? params.newColor : v));
-    },
-    randomParams(ctx){ return { newColor: randInt(1,ctx.paletteCount) }; },
-    validate(grid, params, ctx){ return !gridsEqual(RULES.border.apply(grid,params,ctx), grid); }
-  },
-
-  center:{
-    apply(grid, params){
-      const R=grid.length, C=grid[0].length;
-      return grid.map((row,i)=>row.map((v,j)=> (i===0||i===R-1||j===0||j===C-1) ? v : params.newColor));
-    },
-    randomParams(ctx){
-      if(ctx.size<3) return null;
-      return { newColor: randInt(1,ctx.paletteCount) };
-    },
-    validate(grid, params, ctx){
-      if(ctx.size<3) return false;
-      return !gridsEqual(RULES.center.apply(grid,params,ctx), grid);
-    }
-  },
-
-  adjacency:{
-    apply(grid, params){
-      const R=grid.length, C=grid[0].length;
-      const out=cloneGrid(grid);
-      for(let i=0;i<R;i++){
-        for(let j=0;j<C;j++){
-          let cnt=0;
-          const neigh=[[i-1,j],[i+1,j],[i,j-1],[i,j+1]];
-          for(const [nr,nc] of neigh){
-            if(nr>=0 && nr<R && nc>=0 && nc<C && grid[nr][nc]===params.neighborColor) cnt++;
-          }
-          if(cnt>=params.minCount) out[i][j]=params.newColor;
-        }
-      }
-      return out;
-    },
-    randomParams(ctx){
-      return { neighborColor: randInt(1,ctx.paletteCount), minCount: randInt(2,3), newColor: randInt(1,ctx.paletteCount) };
-    },
-    validate(grid, params, ctx){
-      const result=RULES.adjacency.apply(grid,params,ctx);
-      let changed=0, total=0;
-      for(let i=0;i<grid.length;i++){ for(let j=0;j<grid[i].length;j++){ total++; if(result[i][j]!==grid[i][j]) changed++; } }
-      return changed>0 && changed<total;
-    }
-  },
-
-  conditional:{
-    apply(grid, params, ctx){
-      const cnt=countColor(grid, params.predicate.color);
-      const isOdd = (cnt%2===1);
-      const chosen = isOdd ? params.thenStep : params.elseStep;
-      return RULES[chosen.ruleId].apply(grid, chosen.params, ctx);
-    },
-    randomParams(ctx){
-      const simpleIds=['mirrorH','mirrorV','rotate90','rotate180','invert','swapColors','border','center'];
-      const color=randInt(1,ctx.paletteCount);
-      let thenId, thenParams, tries=0;
-      do{
-        thenId=simpleIds[randInt(0,simpleIds.length-1)];
-        thenParams=RULES[thenId].randomParams(ctx);
-        tries++;
-      }while(!thenParams && tries<20);
-      if(!thenParams) thenParams={};
-      let elseId, elseParams, tries2=0;
-      do{
-        elseId=simpleIds[randInt(0,simpleIds.length-1)];
-        elseParams=RULES[elseId].randomParams(ctx);
-        tries2++;
-      }while((!elseParams || elseId===thenId) && tries2<20);
-      if(!elseParams) elseParams={};
-      return { predicate:{color}, thenStep:{ruleId:thenId, params:thenParams}, elseStep:{ruleId:elseId, params:elseParams} };
-    },
-    validate(grid, params, ctx){
-      const cnt=countColor(grid, params.predicate.color);
-      const isOdd=(cnt%2===1);
-      const chosen = isOdd ? params.thenStep : params.elseStep;
-      return RULES[chosen.ruleId].validate(grid, chosen.params, ctx);
-    }
-  }
+  mirrorH:{ apply(g){ return g.map(r=>r.slice().reverse()); }, randomParams(){ return {}; }, validate(g,p,ctx){ return !gridsEqual(RULES.mirrorH.apply(g),g); } },
+  mirrorV:{ apply(g){ return g.slice().reverse().map(r=>r.slice()); }, randomParams(){ return {}; }, validate(g){ return !gridsEqual(RULES.mirrorV.apply(g),g); } },
+  rotate90:{ apply(g){ const n=g.length,o=makeGrid(n,0); for(let i=0;i<n;i++) for(let j=0;j<n;j++) o[j][n-1-i]=g[i][j]; return o; }, randomParams(){ return {}; }, validate(g){ return !gridsEqual(RULES.rotate90.apply(g),g); } },
+  rotate180:{ apply(g){ const n=g.length,o=makeGrid(n,0); for(let i=0;i<n;i++) for(let j=0;j<n;j++) o[n-1-i][n-1-j]=g[i][j]; return o; }, randomParams(){ return {}; }, validate(g){ return !gridsEqual(RULES.rotate180.apply(g),g); } },
+  invert:{ apply(g,p,ctx){ const n=ctx.paletteCount; return g.map(r=>r.map(v=>n+1-v)); }, randomParams(){ return {}; }, validate(g,p,ctx){ return ctx.paletteCount>=2&&!gridsEqual(RULES.invert.apply(g,p,ctx),g); } },
+  shiftRows:{ apply(g,p){ const k=p.k,R=g.length,o=new Array(R); for(let i=0;i<R;i++) o[((i+k)%R+R)%R]=g[i].slice(); return o; }, randomParams(ctx){ return ctx.size<2?null:{k:randInt(1,ctx.size-1)}; }, validate(g,p,ctx){ return !gridsEqual(RULES.shiftRows.apply(g,p),g); } },
+  shiftCols:{ apply(g,p){ const k=p.k,R=g.length,C=g[0].length,o=g.map(r=>new Array(C).fill(0)); for(let i=0;i<R;i++) for(let j=0;j<C;j++) o[i][((j+k)%C+C)%C]=g[i][j]; return o; }, randomParams(ctx){ return ctx.size<2?null:{k:randInt(1,ctx.size-1)}; }, validate(g,p,ctx){ return !gridsEqual(RULES.shiftCols.apply(g,p),g); } },
+  swapColors:{ apply(g,p){ const {a,b}=p; return g.map(r=>r.map(v=>v===a?b:v===b?a:v)); }, randomParams(ctx){ if(ctx.paletteCount<2) return null; const a=randInt(1,ctx.paletteCount); let b; do{ b=randInt(1,ctx.paletteCount); }while(b===a); return {a,b}; }, validate(g,p){ return countColor(g,p.a)>=1&&countColor(g,p.b)>=1; } },
+  parity:{ apply(g,p){ const {colorX,colorEven,colorOdd}=p; const cnt=countColor(g,colorX); const t=cnt%2===0?colorEven:colorOdd; return g.map(r=>r.map(v=>v===colorX?t:v)); }, randomParams(ctx){ const cX=randInt(1,ctx.paletteCount),cE=randInt(1,ctx.paletteCount); let cO; do{ cO=randInt(1,ctx.paletteCount); }while(cO===cE); return {colorX:cX,colorEven:cE,colorOdd:cO}; }, validate(g,p){ return countColor(g,p.colorX)>=1; } },
+  region:{ apply(g,p){ const comps=connectedComponents(g); let best=comps[0]; for(const c of comps) if(c.cells.length>best.cells.length) best=c; const o=cloneGrid(g); for(const [r,c] of best.cells) o[r][c]=p.newColor; return o; }, randomParams(ctx){ return {newColor:randInt(1,ctx.paletteCount)}; }, validate(g){ const s=connectedComponents(g).map(c=>c.cells.length).sort((a,b)=>b-a); return s.length===1||s[0]>s[1]; } },
+  border:{ apply(g,p){ const R=g.length,C=g[0].length; return g.map((row,i)=>row.map((v,j)=>(i===0||i===R-1||j===0||j===C-1)?p.newColor:v)); }, randomParams(ctx){ return {newColor:randInt(1,ctx.paletteCount)}; }, validate(g,p,ctx){ return !gridsEqual(RULES.border.apply(g,p,ctx),g); } },
+  center:{ apply(g,p){ const R=g.length,C=g[0].length; return g.map((row,i)=>row.map((v,j)=>(i===0||i===R-1||j===0||j===C-1)?v:p.newColor)); }, randomParams(ctx){ return ctx.size<3?null:{newColor:randInt(1,ctx.paletteCount)}; }, validate(g,p,ctx){ return ctx.size>=3&&!gridsEqual(RULES.center.apply(g,p,ctx),g); } },
+  adjacency:{ apply(g,p){ const R=g.length,C=g[0].length,o=cloneGrid(g); for(let i=0;i<R;i++) for(let j=0;j<C;j++){ let cnt=0; for(const [nr,nc] of [[i-1,j],[i+1,j],[i,j-1],[i,j+1]]) if(nr>=0&&nr<R&&nc>=0&&nc<C&&g[nr][nc]===p.neighborColor) cnt++; if(cnt>=p.minCount) o[i][j]=p.newColor; } return o; }, randomParams(ctx){ return {neighborColor:randInt(1,ctx.paletteCount),minCount:randInt(2,3),newColor:randInt(1,ctx.paletteCount)}; }, validate(g,p,ctx){ const r=RULES.adjacency.apply(g,p,ctx); let ch=0,tot=0; for(const row of g) for(const v of row){ tot++; } for(let i=0;i<g.length;i++) for(let j=0;j<g[i].length;j++) if(r[i][j]!==g[i][j]) ch++; return ch>0&&ch<tot; } },
+  conditional:{ apply(g,p,ctx){ const cnt=countColor(g,p.predicate.color); const chosen=(cnt%2===1)?p.thenStep:p.elseStep; return RULES[chosen.ruleId].apply(g,chosen.params,ctx); }, randomParams(ctx){ const ids=['mirrorH','mirrorV','rotate90','rotate180','invert','swapColors','border','center']; const color=randInt(1,ctx.paletteCount); let tId,tP,i=0; do{ tId=ids[randInt(0,ids.length-1)]; tP=RULES[tId].randomParams(ctx); i++; }while(!tP&&i<20); if(!tP) tP={}; let eId,eP,j=0; do{ eId=ids[randInt(0,ids.length-1)]; eP=RULES[eId].randomParams(ctx); j++; }while((!eP||eId===tId)&&j<20); if(!eP) eP={}; return {predicate:{color},thenStep:{ruleId:tId,params:tP},elseStep:{ruleId:eId,params:eP}}; }, validate(g,p,ctx){ const cnt=countColor(g,p.predicate.color); const chosen=(cnt%2===1)?p.thenStep:p.elseStep; return RULES[chosen.ruleId].validate(g,chosen.params,ctx); } }
 };
 
-const SIMPLE_OPS = ['mirrorH','mirrorV','rotate90','rotate180','invert','shiftRows','shiftCols','swapColors'];
-const SPATIAL_OPS = ['border','center','region'];
-const ADVANCED_OPS = ['parity','adjacency'];
-const ALL_BASE_OPS = SIMPLE_OPS.concat(SPATIAL_OPS, ADVANCED_OPS);
+const SIMPLE_OPS=['mirrorH','mirrorV','rotate90','rotate180','invert','shiftRows','shiftCols','swapColors'];
+const SPATIAL_OPS=['border','center','region'];
+const ADVANCED_OPS=['parity','adjacency'];
+const ALL_OPS=SIMPLE_OPS.concat(SPATIAL_OPS,ADVANCED_OPS);
 
-function applyChainToGrid(grid, chain, ctx){
-  let g=grid;
-  for(const step of chain){ g=RULES[step.ruleId].apply(g, step.params, ctx); }
-  return g;
-}
+function applyChain(grid,chain,ctx){ let g=grid; for(const s of chain) g=RULES[s.ruleId].apply(g,s.params,ctx); return g; }
+function validateChain(chain,grid,ctx){ let g=grid; for(const s of chain){ if(!RULES[s.ruleId].validate(g,s.params,ctx)) return false; g=RULES[s.ruleId].apply(g,s.params,ctx); } return true; }
+function chainsEq(a,b){ try{ return JSON.stringify(a)===JSON.stringify(b); }catch(e){ return false; } }
 
-function validateChainOnGrid(chain, grid, ctx){
-  let g=grid;
-  for(const step of chain){
-    const rule=RULES[step.ruleId];
-    if(!rule.validate(g, step.params, ctx)) return false;
-    g=rule.apply(g, step.params, ctx);
-  }
-  return true;
-}
-
-function generateChain(ctx, pool, length){
-  const chain=[];
-  let guard=0;
-  while(chain.length<length && guard<400){
-    guard++;
+function genChain(ctx,pool,len){
+  const chain=[]; let guard=0;
+  while(chain.length<len&&guard<400){ guard++;
     const id=pool[randInt(0,pool.length-1)];
-    if(chain.length>0 && chain[chain.length-1].ruleId===id) continue;
-    const params=RULES[id].randomParams(ctx);
-    if(!params) continue;
-    chain.push({ruleId:id, params});
+    if(chain.length>0&&chain[chain.length-1].ruleId===id) continue;
+    const p=RULES[id].randomParams(ctx); if(!p) continue;
+    chain.push({ruleId:id,params:p});
   }
   return chain;
 }
 
-function chainsStructurallyEqual(a,b){
-  try{ return JSON.stringify(a)===JSON.stringify(b); }catch(e){ return false; }
-}
-
-function buildChainForTier(tierShape, ctx){
-  switch(tierShape){
-    case 0:
-    case 1:
-      return generateChain(ctx, SIMPLE_OPS, 1);
-    case 2:
-      return generateChain(ctx, SIMPLE_OPS.concat(SPATIAL_OPS), 2);
-    case 3:{
-      if(Math.random()<0.4){
-        return [{ ruleId:'conditional', params: RULES.conditional.randomParams(ctx) }];
-      }
-      const pool1=SPATIAL_OPS.concat(ADVANCED_OPS);
-      const first=pool1[randInt(0,pool1.length-1)];
-      const p1=RULES[first].randomParams(ctx);
-      const chain=p1 ? [{ruleId:first, params:p1}] : generateChain(ctx, SIMPLE_OPS, 1);
-      if(Math.random()<0.5){
-        const second=SIMPLE_OPS[randInt(0,SIMPLE_OPS.length-1)];
-        const p2=RULES[second].randomParams(ctx);
-        if(p2) chain.push({ruleId:second, params:p2});
-      }
-      return chain;
-    }
-    case 4:
-      return generateChain(ctx, SIMPLE_OPS.concat(SPATIAL_OPS), 2);
-    case 5:
-      return generateChain(ctx, SIMPLE_OPS.concat(SPATIAL_OPS), randInt(1,2));
-    case 6:
-      return generateChain(ctx, ALL_BASE_OPS, 2);
-    case 7:
-      return generateChain(ctx, ALL_BASE_OPS, randInt(3,4));
-    default:
-      return generateChain(ctx, SIMPLE_OPS.concat(SPATIAL_OPS), 2);
+function buildChainForTier(t,ctx){
+  switch(t){
+    case 0: case 1: return genChain(ctx,SIMPLE_OPS,1);
+    case 2: return genChain(ctx,SIMPLE_OPS.concat(SPATIAL_OPS),2);
+    case 3: if(Math.random()<0.4) return [{ruleId:'conditional',params:RULES.conditional.randomParams(ctx)}]; { const pool=SPATIAL_OPS.concat(ADVANCED_OPS); const id=pool[randInt(0,pool.length-1)]; const p=RULES[id].randomParams(ctx); const c=p?[{ruleId:id,params:p}]:genChain(ctx,SIMPLE_OPS,1); if(Math.random()<0.5){ const id2=SIMPLE_OPS[randInt(0,SIMPLE_OPS.length-1)]; const p2=RULES[id2].randomParams(ctx); if(p2) c.push({ruleId:id2,params:p2}); } return c; }
+    case 4: return genChain(ctx,SIMPLE_OPS.concat(SPATIAL_OPS),2);
+    case 5: return genChain(ctx,SIMPLE_OPS.concat(SPATIAL_OPS),randInt(1,2));
+    case 6: return genChain(ctx,ALL_OPS,2);
+    case 7: return genChain(ctx,ALL_OPS,randInt(3,4));
+    default: return genChain(ctx,SIMPLE_OPS.concat(SPATIAL_OPS),2);
   }
 }
 
-/* ============================================================
-   SECTION 4 — PUZZLE GENERATOR (with solvability / ambiguity QA)
-   ============================================================ */
-function generateValidGridForChain(chain, ctx, avoid){
-  avoid = avoid || [];
-  for(let i=0;i<80;i++){
-    const g=randomGrid(ctx.size, ctx.paletteCount);
-    if(avoid.some(a=>gridsEqual(a,g))) continue;
-    if(validateChainOnGrid(chain, g, ctx)) return {grid:g, success:true};
-  }
-  return {grid:null, success:false};
+/* =====================================================================
+   SECTION 4: PUZZLE GENERATOR
+   ===================================================================== */
+const PROBE_POOL=SIMPLE_OPS.concat(SPATIAL_OPS);
+
+function validGridForChain(chain,ctx,avoid){
+  avoid=avoid||[];
+  for(let i=0;i<80;i++){ const g=randomGrid(ctx.size,ctx.paletteCount); if(avoid.some(a=>gridsEqual(a,g))) continue; if(validateChain(chain,g,ctx)) return {grid:g,ok:true}; }
+  return {grid:null,ok:false};
 }
 
-function checkAmbiguity(chain, examples, testInput, testOutput, ctx, sampleCount){
-  sampleCount = sampleCount || 130;
-  for(let i=0;i<sampleCount;i++){
-    let candChain;
-    if(Math.random()<0.12){
-      candChain=[{ ruleId:'conditional', params: RULES.conditional.randomParams(ctx) }];
-    } else {
-      const len=Math.max(1, chain.length + (randInt(0,2)-1));
-      candChain=generateChain(ctx, ALL_BASE_OPS, len);
-    }
-    if(!candChain.length) continue;
-    if(chainsStructurallyEqual(candChain, chain)) continue;
-    let consistent=true;
-    for(const ex of examples){
-      let candOut;
-      try{ candOut=applyChainToGrid(ex.input, candChain, ctx); }catch(e){ consistent=false; break; }
-      if(!gridsEqual(candOut, ex.output)){ consistent=false; break; }
-    }
-    if(!consistent) continue;
-    let candTestOut;
-    try{ candTestOut=applyChainToGrid(testInput, candChain, ctx); }catch(e){ continue; }
-    if(!gridsEqual(candTestOut, testOutput)){ return {ambiguous:true, candidate:candChain}; }
+function checkAmbiguity(chain,examples,tIn,tOut,ctx){
+  for(let i=0;i<130;i++){
+    let cand; if(Math.random()<0.12) cand=[{ruleId:'conditional',params:RULES.conditional.randomParams(ctx)}]; else cand=genChain(ctx,ALL_OPS,Math.max(1,chain.length+(randInt(0,2)-1)));
+    if(!cand.length||chainsEq(cand,chain)) continue;
+    let ok=true;
+    for(const ex of examples){ try{ if(!gridsEqual(applyChain(ex.input,cand,ctx),ex.output)){ok=false;break;} }catch(e){ok=false;break;} }
+    if(!ok) continue;
+    try{ if(!gridsEqual(applyChain(tIn,cand,ctx),tOut)) return {ambiguous:true}; }catch(e){}
   }
   return {ambiguous:false};
 }
 
-function generateStandardPuzzle(tierShape, ctx, cfg){
-  let attempts=0;
-  while(attempts<60){
-    attempts++;
-    const chain=buildChainForTier(tierShape, ctx);
-    if(!chain.length) continue;
-    const range=cfg.examplesRange || [2,2];
-    const numExamples=randInt(range[0], range[1]);
-    const examples=[]; const used=[];
-    let ok=true;
-    for(let e=0;e<numExamples;e++){
-      const r=generateValidGridForChain(chain, ctx, used);
-      if(!r.success){ ok=false; break; }
-      used.push(r.grid);
-      examples.push({ input:r.grid, output:applyChainToGrid(r.grid, chain, ctx) });
-    }
+function genStandardPuzzle(tierShape,ctx,cfg){
+  for(let att=0;att<60;att++){
+    const chain=buildChainForTier(tierShape,ctx); if(!chain.length) continue;
+    const nr=randInt((cfg.examplesRange||[2,2])[0],(cfg.examplesRange||[2,2])[1]);
+    const examples=[]; const used=[]; let ok=true;
+    for(let e=0;e<nr;e++){ const r=validGridForChain(chain,ctx,used); if(!r.ok){ok=false;break;} used.push(r.grid); examples.push({input:r.grid,output:applyChain(r.grid,chain,ctx)}); }
     if(!ok) continue;
-    const tr=generateValidGridForChain(chain, ctx, used);
-    if(!tr.success) continue;
-    const testInput=tr.grid;
-    const testOutput=applyChainToGrid(testInput, chain, ctx);
-    const amb=checkAmbiguity(chain, examples, testInput, testOutput, ctx);
-    if(amb.ambiguous) continue;
-    return { chain, examples, testInput, testOutput, ctx };
+    const tr=validGridForChain(chain,ctx,used); if(!tr.ok) continue;
+    const tIn=tr.grid,tOut=applyChain(tIn,chain,ctx);
+    if(checkAmbiguity(chain,examples,tIn,tOut,ctx).ambiguous) continue;
+    return {chain,examples,testInput:tIn,testOutput:tOut,ctx};
   }
-  // Defensive fallback: a guaranteed-unambiguous single mirror, never hangs.
-  const fallbackChain=[{ruleId:'mirrorH', params:{}}];
-  let g, gv;
-  do{ gv=generateValidGridForChain(fallbackChain, ctx); g=gv.grid; }while(!gv.success);
-  const out=applyChainToGrid(g, fallbackChain, ctx);
-  let ti, tiv;
-  do{ tiv=generateValidGridForChain(fallbackChain, ctx, [g]); ti=tiv.grid; }while(!tiv.success);
-  return { chain:fallbackChain, examples:[{input:g, output:out}], testInput:ti, testOutput:applyChainToGrid(ti, fallbackChain, ctx), ctx };
+  const fb=[{ruleId:'mirrorH',params:{}}]; const gr=validGridForChain(fb,ctx); const ti=validGridForChain(fb,ctx,[gr.grid]);
+  return {chain:fb,examples:[{input:gr.grid,output:applyChain(gr.grid,fb,ctx)}],testInput:ti.grid,testOutput:applyChain(ti.grid,fb,ctx),ctx};
 }
 
-const PROBE_CANDIDATE_POOL = SIMPLE_OPS.concat(SPATIAL_OPS);
-
-function generateAmbiguousPuzzle(ctx, cfg){
-  let attempts=0;
-  while(attempts<90){
-    attempts++;
-    const chain=buildChainForTier(5, ctx);
-    if(!chain.length) continue;
-    const r=generateValidGridForChain(chain, ctx);
-    if(!r.success) continue;
-    const exampleInput=r.grid;
-    const exampleOutput=applyChainToGrid(exampleInput, chain, ctx);
-
+function genAmbiguousPuzzle(ctx,cfg){
+  for(let att=0;att<90;att++){
+    const chain=buildChainForTier(5,ctx); if(!chain.length) continue;
+    const r=validGridForChain(chain,ctx); if(!r.ok) continue;
+    const exIn=r.grid,exOut=applyChain(exIn,chain,ctx);
     let found=false;
     for(let i=0;i<160;i++){
-      const candLen=Math.max(1, randInt(1, chain.length+1));
-      const cand=generateChain(ctx, PROBE_CANDIDATE_POOL, candLen);
-      if(!cand.length || chainsStructurallyEqual(cand, chain)) continue;
-      let candOut;
-      try{ candOut=applyChainToGrid(exampleInput, cand, ctx); }catch(e){ continue; }
-      if(!gridsEqual(candOut, exampleOutput)) continue;
+      const cand=genChain(ctx,PROBE_POOL,Math.max(1,randInt(1,chain.length+1)));
+      if(!cand.length||chainsEq(cand,chain)) continue;
+      try{ if(!gridsEqual(applyChain(exIn,cand,ctx),exOut)) continue; }catch(e){ continue; }
       for(let t=0;t<50;t++){
-        const probeGrid=randomGrid(ctx.size, ctx.paletteCount);
-        let a,b;
-        try{ a=applyChainToGrid(probeGrid, cand, ctx); b=applyChainToGrid(probeGrid, chain, ctx); }catch(e){ continue; }
-        if(!gridsEqual(a,b)){ found=true; break; }
+        const pg=randomGrid(ctx.size,ctx.paletteCount);
+        try{ if(!gridsEqual(applyChain(pg,cand,ctx),applyChain(pg,chain,ctx))){ found=true; break; } }catch(e){}
       }
       if(found) break;
     }
     if(!found) continue;
-
-    const tr=generateValidGridForChain(chain, ctx, [exampleInput]);
-    if(!tr.success) continue;
-    const testInput=tr.grid;
-    const testOutput=applyChainToGrid(testInput, chain, ctx);
-    return { chain, examples:[{input:exampleInput, output:exampleOutput}], testInput, testOutput, ctx };
+    const tr=validGridForChain(chain,ctx,[exIn]); if(!tr.ok) continue;
+    return {chain,examples:[{input:exIn,output:exOut}],testInput:tr.grid,testOutput:applyChain(tr.grid,chain,ctx),ctx};
   }
-  return generateStandardPuzzle(1, ctx, cfg);
+  return genStandardPuzzle(1,ctx,cfg);
 }
 
-function generateDecoyPuzzle(ctx, cfg){
-  let attempts=0;
-  while(attempts<90){
-    attempts++;
-    const trueChain=buildChainForTier(6, ctx);
-    if(!trueChain.length) continue;
-    const r1=generateValidGridForChain(trueChain, ctx);
-    if(!r1.success) continue;
-    const ex1in=r1.grid;
-    const ex1out=applyChainToGrid(ex1in, trueChain, ctx);
-
+function genDecoyPuzzle(ctx,cfg){
+  for(let att=0;att<90;att++){
+    const tc=buildChainForTier(6,ctx); if(!tc.length) continue;
+    const r1=validGridForChain(tc,ctx); if(!r1.ok) continue;
+    const e1i=r1.grid,e1o=applyChain(e1i,tc,ctx);
     let decoy=null;
-    for(let i=0;i<120;i++){
-      const cand=generateChain(ctx, PROBE_CANDIDATE_POOL, 1);
-      if(!cand.length || chainsStructurallyEqual(cand, trueChain)) continue;
-      let candOut;
-      try{ candOut=applyChainToGrid(ex1in, cand, ctx); }catch(e){ continue; }
-      if(gridsEqual(candOut, ex1out)){ decoy=cand; break; }
-    }
+    for(let i=0;i<120;i++){ const c=genChain(ctx,PROBE_POOL,1); if(!c.length||chainsEq(c,tc)) continue; try{ if(gridsEqual(applyChain(e1i,c,ctx),e1o)){decoy=c;break;} }catch(e){} }
     if(!decoy) continue;
-
-    let ex2in=null, ex2out=null;
-    for(let i=0;i<80;i++){
-      const g=randomGrid(ctx.size, ctx.paletteCount);
-      if(gridsEqual(g, ex1in)) continue;
-      if(!validateChainOnGrid(trueChain, g, ctx)) continue;
-      const trueOut=applyChainToGrid(g, trueChain, ctx);
-      const decoyOut=applyChainToGrid(g, decoy, ctx);
-      if(!gridsEqual(trueOut, decoyOut)){ ex2in=g; ex2out=trueOut; break; }
-    }
-    if(!ex2in) continue;
-
-    const examples=[{input:ex1in, output:ex1out}, {input:ex2in, output:ex2out}];
-    const tr=generateValidGridForChain(trueChain, ctx, [ex1in, ex2in]);
-    if(!tr.success) continue;
-    const testInput=tr.grid;
-    const testOutput=applyChainToGrid(testInput, trueChain, ctx);
-
-    const amb=checkAmbiguity(trueChain, examples, testInput, testOutput, ctx);
-    if(amb.ambiguous) continue;
-
-    return { chain:trueChain, examples, testInput, testOutput, ctx, decoyChain:decoy };
+    let e2i=null,e2o=null;
+    for(let i=0;i<80;i++){ const g=randomGrid(ctx.size,ctx.paletteCount); if(gridsEqual(g,e1i)||!validateChain(tc,g,ctx)) continue; const to=applyChain(g,tc,ctx),deo=applyChain(g,decoy,ctx); if(!gridsEqual(to,deo)){e2i=g;e2o=to;break;} }
+    if(!e2i) continue;
+    const examples=[{input:e1i,output:e1o},{input:e2i,output:e2o}];
+    const tr=validGridForChain(tc,ctx,[e1i,e2i]); if(!tr.ok) continue;
+    const tIn=tr.grid,tOut=applyChain(tIn,tc,ctx);
+    if(checkAmbiguity(tc,examples,tIn,tOut,ctx).ambiguous) continue;
+    return {chain:tc,examples,testInput:tIn,testOutput:tOut,ctx};
   }
-  return generateStandardPuzzle(2, ctx, cfg);
+  return genStandardPuzzle(2,ctx,cfg);
 }
 
-function generatePuzzleForTier(tierIndex){
-  const cfg=TIER_CONFIGS[tierIndex];
-  const size=randInt(cfg.sizeRange[0], cfg.sizeRange[1]);
-  const paletteCount=randInt(cfg.paletteRange[0], cfg.paletteRange[1]);
-  const ctx={ size, paletteCount };
-  let puzzle;
-  if(cfg.probes){ puzzle=generateAmbiguousPuzzle(ctx, cfg); }
-  else if(cfg.decoy){ puzzle=generateDecoyPuzzle(ctx, cfg); }
-  else { puzzle=generateStandardPuzzle(tierIndex===0?1:tierIndex, ctx, cfg); }
-  puzzle.tier=tierIndex;
-  puzzle.category=cfg.category;
-  puzzle.timeLimit=cfg.timeLimit;
-  puzzle.memoryFlash=!!cfg.memoryFlash;
-  puzzle.flashMs=cfg.flashMs || 4000;
-  puzzle.probesAllowed=cfg.probes || 0;
-  puzzle.basePoints=BASE_POINTS[tierIndex] || 100;
-  return puzzle;
+function generatePuzzleForTier(tierIdx){
+  const cfg=TIER_CONFIGS[tierIdx];
+  const size=randInt(cfg.sizeRange[0],cfg.sizeRange[1]);
+  const pc=randInt(cfg.paletteRange[0],cfg.paletteRange[1]);
+  const ctx={size,paletteCount:pc};
+  let p;
+  if(cfg.singleExample) p=genAmbiguousPuzzle(ctx,cfg);
+  else if(cfg.decoy) p=genDecoyPuzzle(ctx,cfg);
+  else p=genStandardPuzzle(tierIdx===0?1:tierIdx,ctx,cfg);
+  p.tier=tierIdx; p.memoryFlash=!!cfg.memoryFlash; p.flashMs=cfg.flashMs||4000;
+  return p;
 }
 
-function generateCrucibleRound(roundIndex){
-  const archetypes=['Direct','Composite','Conditional','Memory','Probe','Decoy','Compound'];
-  const category=archetypes[randInt(0,archetypes.length-1)];
-  const size=Math.min(7, 3+Math.floor(roundIndex/4));
-  const paletteCount=Math.min(6, 2+Math.floor(roundIndex/3));
-  const timeLimit=Math.max(10, 25-Math.floor(roundIndex/3));
-  const ctx={ size:Math.max(3,size), paletteCount:Math.max(2,paletteCount) };
-  const fakeCfg={ examplesRange:[2,2] };
+function generateEndlessPuzzle(roundIdx){
+  const size=Math.min(7,3+Math.floor(roundIdx/4));
+  const pc=Math.min(6,2+Math.floor(roundIdx/3));
+  const ctx={size:Math.max(3,size),paletteCount:Math.max(2,pc)};
+  const archetypes=['Direct','Composite','Conditional','Memory','SingleExample','Decoy','Compound'];
+  const cat=archetypes[randInt(0,archetypes.length-1)];
+  const fake={examplesRange:[2,2]};
+  let p;
+  if(cat==='SingleExample') p=genAmbiguousPuzzle(ctx,fake);
+  else if(cat==='Decoy') p=genDecoyPuzzle(ctx,fake);
+  else { const tm={Direct:1,Composite:2,Conditional:3,Memory:4,Compound:7}; p=genStandardPuzzle(tm[cat]||2,ctx,fake); }
+  p.tier=8; p.memoryFlash=(cat==='Memory'); p.flashMs=3500;
+  return p;
+}
 
-  let puzzle;
-  if(category==='Probe'){ puzzle=generateAmbiguousPuzzle(ctx, fakeCfg); puzzle.probesAllowed=3; }
-  else if(category==='Decoy'){ puzzle=generateDecoyPuzzle(ctx, fakeCfg); puzzle.probesAllowed=0; }
-  else {
-    const tierMap={ Direct:1, Composite:2, Conditional:3, Memory:4, Compound:7 };
-    puzzle=generateStandardPuzzle(tierMap[category]||2, ctx, fakeCfg);
-    puzzle.probesAllowed=0;
+/* =====================================================================
+   SECTION 5: RULE DESCRIPTION
+   ===================================================================== */
+function cn(n){ return COLOR_NAMES[n-1]||('color '+n); }
+
+function describeStep(step){
+  const {ruleId,params:p}=step;
+  switch(ruleId){
+    case 'mirrorH':    return 'Flip the grid left to right';
+    case 'mirrorV':    return 'Flip the grid top to bottom';
+    case 'rotate90':   return 'Rotate 90 degrees clockwise';
+    case 'rotate180':  return 'Rotate 180 degrees';
+    case 'invert':     return 'Replace each color with its opposite in the palette';
+    case 'shiftRows':  return 'Shift every row down by '+p.k+' (wraps around)';
+    case 'shiftCols':  return 'Shift every column right by '+p.k+' (wraps around)';
+    case 'swapColors': return 'Swap all '+cn(p.a)+' cells with '+cn(p.b)+' cells';
+    case 'parity':     return cn(p.colorX)+' cells: if count is even, recolor to '+cn(p.colorEven)+'; if odd, recolor to '+cn(p.colorOdd);
+    case 'region':     return 'Recolor the largest connected group to '+cn(p.newColor);
+    case 'border':     return 'Recolor all outer-edge cells to '+cn(p.newColor);
+    case 'center':     return 'Recolor all non-border cells to '+cn(p.newColor);
+    case 'adjacency':  return 'Any cell with '+p.minCount+'+ '+cn(p.neighborColor)+' neighbors becomes '+cn(p.newColor);
+    case 'conditional':return 'If '+cn(p.predicate.color)+' cells are odd in count: '+describeStep(p.thenStep)+'. Otherwise: '+describeStep(p.elseStep);
+    default:           return 'Unknown transform';
   }
-  puzzle.tier=8;
-  puzzle.category=category;
-  puzzle.timeLimit=timeLimit;
-  puzzle.memoryFlash=(category==='Memory');
-  puzzle.flashMs=3500;
-  puzzle.tierLabel='The Crucible — Round '+(roundIndex+1);
-  puzzle.basePoints=500+roundIndex*8;
-  return puzzle;
 }
 
-/* ============================================================
-   SECTION 5 — GAME STATE
-   ============================================================ */
-const STATE = {
+function describeChain(chain){
+  if(!chain||!chain.length) return 'Unknown rule';
+  if(chain.length===1) return describeStep(chain[0]);
+  return chain.map((s,i)=>'Step '+(i+1)+': '+describeStep(s)).join('. ');
+}
+
+/* =====================================================================
+   SECTION 6: GAME STATE
+   ===================================================================== */
+const S={
   screen:'title',
   tier:0,
   levelInTier:0,
-  mistakesThisTier:0,
-  tierRunStats:{ attempts:0, correct:0, points:0 },
-  score:0,
-  streak:0,
-  crucibleLives:3,
-  crucibleRound:0,
-  muted:false,
-  currentPuzzle:null,
+  puzzle:null,
   workingGrid:null,
   selectedColor:1,
   cursor:{r:0,c:0},
-  timerRemaining:null,
-  timerInterval:null,
+  hintsUsed:0,      // 0-3 per puzzle
+  gridLocked:false, // true after hint 3 or submit
+  examplesHidden:false,
   submitLocked:false,
-  probesRemaining:0,
-  probesUsedThisPuzzle:0,
-  totalProbesUsed:0,
-  profileStats:{},
-  maxTierReached:0,
-  tierResetPending:false,
+  muted:false,
+  isEndless:false,
+  endlessRound:0,
+  revealTimeout:null,
 };
 
-function resetRunState(){
-  STATE.tier=0;
-  STATE.levelInTier=0;
-  STATE.mistakesThisTier=0;
-  STATE.tierRunStats={attempts:0,correct:0,points:0};
-  STATE.score=0;
-  STATE.streak=0;
-  STATE.crucibleLives=3;
-  STATE.crucibleRound=0;
-  STATE.currentPuzzle=null;
-  STATE.profileStats={};
-  STATE.totalProbesUsed=0;
-  STATE.maxTierReached=0;
-  STATE.tierResetPending=false;
+function resetRun(){
+  S.tier=0; S.levelInTier=0; S.puzzle=null; S.workingGrid=null;
+  S.hintsUsed=0; S.gridLocked=false; S.examplesHidden=false;
+  S.submitLocked=false; S.isEndless=false; S.endlessRound=0;
+  clearRevealTimeout();
 }
 
-function calcRank(score){
-  for(const r of RANKS){ if(score>=r.min) return r.name; }
-  return 'Novice';
-}
+function clearRevealTimeout(){ if(S.revealTimeout){ clearTimeout(S.revealTimeout); S.revealTimeout=null; } }
 
-function computeScore(puzzle, frac, streakBefore, probesUsed){
-  const base=puzzle.basePoints || 100;
-  const speedMult = (frac==null) ? 1.0 : (1.0 + Math.max(0, Math.min(1, frac)));
-  const streakMult = Math.min(2.0, 1.0 + 0.1*streakBefore);
-  let score = base*speedMult*streakMult;
-  score -= probesUsed*0.15*base;
-  return Math.max(0, Math.round(score));
-}
-
-function recordStat(category, correct, elapsed){
-  if(!STATE.profileStats[category]) STATE.profileStats[category]={attempts:0,correct:0,timeSum:0};
-  const s=STATE.profileStats[category];
-  s.attempts++;
-  if(correct) s.correct++;
-  s.timeSum += Math.max(0, elapsed||0);
-}
-
-/* ============================================================
-   SECTION 6 — AUDIO
-   ============================================================ */
+/* =====================================================================
+   SECTION 7: AUDIO
+   ===================================================================== */
 let audioCtx=null;
-function ensureAudioCtx(){
-  if(!audioCtx){
-    const AC=window.AudioContext || window.webkitAudioContext;
-    if(AC) audioCtx=new AC();
-  }
-  return audioCtx;
-}
-function playTone(success){
-  if(STATE.muted) return;
-  const ctx=ensureAudioCtx();
-  if(!ctx) return;
+function getAudio(){ if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC(); } return audioCtx; }
+function playTone(ok){
+  if(S.muted) return;
+  const ctx=getAudio(); if(!ctx) return;
   try{
-    const osc=ctx.createOscillator();
-    const gain=ctx.createGain();
-    osc.type='sine';
-    osc.frequency.value = success ? 700 : 200;
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type='sine'; osc.frequency.value=ok?700:220;
     gain.gain.value=0.0001;
     osc.connect(gain); gain.connect(ctx.destination);
     const now=ctx.currentTime;
-    gain.gain.exponentialRampToValueAtTime(0.13, now+0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now+(success?0.26:0.36));
-    osc.start(now);
-    osc.stop(now+(success?0.32:0.42));
-  }catch(e){ /* audio not available, fail silently */ }
+    gain.gain.exponentialRampToValueAtTime(0.12,now+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+(ok?0.28:0.38));
+    osc.start(now); osc.stop(now+(ok?0.34:0.44));
+  }catch(e){}
 }
 
-/* ============================================================
-   SECTION 7 — RENDERER HELPERS
-   ============================================================ */
+/* =====================================================================
+   SECTION 8: RENDERER HELPERS
+   ===================================================================== */
 const app=document.getElementById('app');
 
-function labelEl(text){
-  const d=document.createElement('div');
-  d.className='section-label';
-  d.style.marginBottom='2px';
-  d.textContent=text;
-  return d;
+function renderCell(v){ const el=document.createElement('div'); el.className='cell'+(v?'':' cell-empty'); if(v) el.style.background=PALETTE[v-1]; return el; }
+
+function renderGridDOM(grid,opts){
+  opts=opts||{};
+  const n=grid.length;
+  const wrap=document.createElement('div'); wrap.className='grid-wrap';
+  const g=document.createElement('div');
+  g.className='grid'+(opts.editable?' grid-editable':'')+(opts.sm?' grid-sm':'')+(opts.locked?' grid-locked':'');
+  g.style.gridTemplateColumns='repeat('+n+',1fr)';
+  g.style.gridTemplateRows='repeat('+n+',1fr)';
+  const changed=opts.changed||new Set();
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++){
+    const cell=renderCell(grid[r][c]);
+    cell.dataset.r=r; cell.dataset.c=c;
+    if(changed.has(r+','+c)) cell.dataset.changed='1';
+    if(opts.editable&&!opts.locked) cell.addEventListener('click',()=>opts.onCellClick(r,c));
+    g.appendChild(cell);
+  }
+  if(opts.id) g.id=opts.id;
+  wrap.appendChild(g);
+  return wrap;
 }
 
-function applyCellColor(cellEl, v){
-  cellEl.className='cell';
-  if(!v || v===0){
-    cellEl.classList.add('cell-empty');
-    cellEl.style.background='';
-  } else {
-    cellEl.style.background=PALETTE[v-1];
+function renderExamplePair(ex,changed,small){
+  const pair=document.createElement('div'); pair.className='example-pair';
+  const ib=document.createElement('div'); ib.className='mini-block';
+  const lIn=document.createElement('div'); lIn.className='section-label'; lIn.textContent='Input'; ib.appendChild(lIn);
+  ib.appendChild(renderGridDOM(ex.input,{sm:small,changed}));
+  const arr=document.createElement('div'); arr.className='mini-arrow'; arr.textContent='\u2192';
+  const ob=document.createElement('div'); ob.className='mini-block';
+  const lOut=document.createElement('div'); lOut.className='section-label'; lOut.textContent='Output'; ob.appendChild(lOut);
+  ob.appendChild(renderGridDOM(ex.output,{sm:small,changed}));
+  pair.appendChild(ib); pair.appendChild(arr); pair.appendChild(ob);
+  return pair;
+}
+
+let toastTimer=null;
+function toast(msg,kind){
+  let t=document.getElementById('_toast');
+  if(!t){ t=document.createElement('div'); t.id='_toast'; t.className='toast'; document.body.appendChild(t); }
+  t.textContent=msg; t.className='toast toast-'+(kind||'ok')+' show';
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),1400);
+}
+
+function updateTopBar(){
+  const tb=document.getElementById('topBar'); if(!tb) return;
+  const p=S.puzzle; if(!p) return;
+  const d=S.isEndless?TIER_DISPLAY[8]:TIER_DISPLAY[p.tier];
+  const tierEl=tb.querySelector('.topbar-tier'); if(tierEl) tierEl.textContent=d.name;
+  const lvlEl=tb.querySelector('.topbar-level');
+  if(lvlEl){
+    if(S.isEndless) lvlEl.textContent='Round '+(S.endlessRound+1);
+    else lvlEl.textContent='Level '+(S.levelInTier+1)+' of '+TIER_CONFIGS[p.tier].puzzleCount;
   }
 }
 
-function renderGridDOM(grid, opts){
-  opts=opts || {};
-  const size=grid.length;
-  const container=document.createElement('div');
-  container.className='grid'+(opts.editable?' grid-editable':'');
-  container.style.gridTemplateColumns='repeat('+size+',1fr)';
-  container.style.gridTemplateRows='repeat('+size+',1fr)';
-  for(let i=0;i<size;i++){
-    for(let j=0;j<size;j++){
-      const cell=document.createElement('div');
-      cell.dataset.r=i; cell.dataset.c=j;
-      applyCellColor(cell, grid[i][j]);
-      if(opts.editable){
-        cell.addEventListener('click', ()=>opts.onCellClick(i,j));
-      }
-      container.appendChild(cell);
+function renderProgressDots(container){
+  container.innerHTML='';
+  if(S.isEndless) return;
+  const total=TIER_CONFIGS[S.puzzle.tier].puzzleCount;
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i<S.levelInTier?' done':i===S.levelInTier?' current':'');
+    container.appendChild(d);
+  }
+}
+
+/* =====================================================================
+   SECTION 9: HINT SYSTEM
+   ===================================================================== */
+function applyHint(){
+  const p=S.puzzle; if(!p||S.hintsUsed>=3) return;
+  S.hintsUsed++;
+
+  // Hint 1: highlight changed cells
+  if(S.hintsUsed===1){
+    if(!S.examplesHidden){
+      // Mark changed cells in all example pairs
+      const firstEx=p.examples[0];
+      const changed=getChangedPositions(firstEx.input,firstEx.output);
+      const pairs=document.querySelectorAll('.example-pair');
+      pairs.forEach((pairEl,pIdx)=>{
+        pairEl.classList.add('hint1-active');
+        const ex=p.examples[pIdx];
+        if(!ex) return;
+        const exChanged=getChangedPositions(ex.input,ex.output);
+        pairEl.querySelectorAll('.cell').forEach(cellEl=>{
+          const r=cellEl.dataset.r, c=cellEl.dataset.c;
+          if(r!==undefined && exChanged.has(r+','+c)) cellEl.classList.add('cell-highlight');
+        });
+      });
+      // Also highlight test input at same relative positions
+      const testChanged=getChangedPositions(p.testInput,p.testOutput);
+      const testInGrid=document.querySelector('#testInputWrap .grid');
+      if(testInGrid) testInGrid.querySelectorAll('.cell').forEach(cellEl=>{
+        const r=cellEl.dataset.r, c=cellEl.dataset.c;
+        if(r!==undefined&&testChanged.has(r+','+c)) cellEl.classList.add('cell-highlight');
+      });
     }
   }
-  return container;
-}
 
-let toastTimeout=null;
-function showToast(text, kind){
-  let t=document.getElementById('axiomToast');
-  if(!t){
-    t=document.createElement('div');
-    t.id='axiomToast';
-    t.className='toast';
-    document.body.appendChild(t);
+  // Hint 2: show rule description
+  // Hint 3: fill in correct answer
+  if(S.hintsUsed===3){
+    // Copy correct answer into working grid
+    S.workingGrid=cloneGrid(p.testOutput);
+    S.gridLocked=true;
+    // Re-render output grid
+    const outWrap=document.getElementById('testOutputWrap');
+    if(outWrap){
+      outWrap.innerHTML='';
+      const g=renderGridDOM(S.workingGrid,{editable:false,locked:true,id:'testOutputGrid'});
+      g.querySelector('.grid').classList.add('state-hint3');
+      outWrap.appendChild(g);
+    }
   }
-  t.textContent=text;
-  t.className='toast toast-'+kind+' show';
-  if(toastTimeout) clearTimeout(toastTimeout);
-  toastTimeout=setTimeout(()=>{ t.classList.remove('show'); }, 1300);
+
+  updateHintBar();
+  updateHintButton();
 }
 
-function spawnBurst(container, count, colors){
-  for(let i=0;i<count;i++){
-    const p=document.createElement('div');
-    p.className='burst-particle';
-    const size=randInt(4,9);
-    const angle=Math.random()*Math.PI*2;
-    const dist=randInt(60,150);
-    const endX=Math.cos(angle)*dist;
-    const endY=Math.sin(angle)*dist;
-    p.style.width=size+'px'; p.style.height=size+'px';
-    p.style.left='50%'; p.style.top='40%';
-    p.style.background=colors[randInt(0,colors.length-1)];
-    p.style.setProperty('--end-transform', 'translate('+endX+'px,'+endY+'px)');
-    container.appendChild(p);
-    setTimeout(()=>{ p.remove(); }, 850);
+function updateHintBar(){
+  const bar=document.getElementById('hintBar'); if(!bar) return;
+  const p=S.puzzle; if(!p) return;
+  let html='';
+  if(S.hintsUsed>=1){
+    if(S.examplesHidden) html+='<div class="hint-line"><strong>Hint 1.</strong> The examples for this tier are hidden. Use the next hint for a description of the rule.</div>';
+    else html+='<div class="hint-line"><strong>Hint 1.</strong> Highlighted cells show where the transform makes changes in the examples and test input.</div>';
   }
-}
-
-/* ============================================================
-   SECTION 8 — TITLE / HOW-IT-WORKS / LEADERBOARD SCREENS
-   ============================================================ */
-function getLeaderboard(){
-  try{
-    const raw=localStorage.getItem('axiom_leaderboard');
-    return raw ? JSON.parse(raw) : [];
-  }catch(e){ return []; }
-}
-function saveLeaderboard(list){
-  try{ localStorage.setItem('axiom_leaderboard', JSON.stringify(list)); }catch(e){}
-}
-function getBestScore(){
-  const lb=getLeaderboard();
-  if(!lb.length) return null;
-  return Math.max.apply(null, lb.map(e=>e.score));
-}
-
-function renderTitleScreen(){
-  STATE.screen='title';
-  const best=getBestScore();
-  app.innerHTML =
-    '<div class="screen title-screen">'+
-      '<div class="title-grid-decoration" id="titleDeco"></div>'+
-      '<h1 class="title-wordmark">AXIOM</h1>'+
-      '<div class="title-tagline">FIND THE RULE. TRUST NOTHING ELSE.</div>'+
-      '<div class="title-actions">'+
-        '<button class="btn btn-submit btn-large" id="beginBtn">Begin</button>'+
-        '<button class="text-btn" id="howItWorksBtn">How it works</button>'+
-        '<button class="text-btn" id="leaderboardLinkBtn">Leaderboard</button>'+
-      '</div>'+
-      (best!=null ? '<div class="title-best">Best run: '+best.toLocaleString()+' pts</div>' : '')+
-      '<div class="footer-note">AXIOM is a self-test for sharp reasoning practice — not a validated psychometric or IQ instrument. No randomness ever determines a correct answer; every puzzle is pure deduction.</div>'+
-    '</div>';
-
-  const deco=document.getElementById('titleDeco');
-  const pattern=[1,2,1,3,0,3,1,2,1];
-  pattern.forEach((v,idx)=>{
-    const c=document.createElement('div');
-    c.className='dcell';
-    c.style.background = v? PALETTE[v-1] : 'var(--surface-elevated)';
-    c.style.animationDelay=(idx*0.15)+'s';
-    deco.appendChild(c);
-  });
-
-  document.getElementById('beginBtn').addEventListener('click', ()=>{
-    resetRunState();
-    renderTutorialIntro();
-  });
-  document.getElementById('howItWorksBtn').addEventListener('click', openHowItWorks);
-  document.getElementById('leaderboardLinkBtn').addEventListener('click', ()=>renderLeaderboardScreen(renderTitleScreen));
-}
-
-function openHowItWorks(){
-  const modal=document.createElement('div');
-  modal.className='modal-backdrop';
-  modal.innerHTML =
-    '<div class="modal">'+
-      '<div class="modal-title">How AXIOM works</div>'+
-      '<ul class="howitworks-list">'+
-        '<li><span class="num">01</span>Each puzzle shows you Input → Output example grids, transformed by one hidden rule.</li>'+
-        '<li><span class="num">02</span>Study the examples, then apply what you believe the rule is to a new Test Input.</li>'+
-        '<li><span class="num">03</span>Paint your answer onto the empty output grid using the color palette, then submit.</li>'+
-        '<li><span class="num">04</span>Difficulty escalates across 9 tiers — composite rules, conditionals, memory load, deliberate ambiguity, decoys, and compound chains.</li>'+
-        '<li><span class="num">05</span>From Tier 5 onward you get probe tokens: submit your own test grid to see what the rule does to it, before committing to a final answer.</li>'+
-        '<li><span class="num">06</span>Clear all 7 tiers to unlock The Crucible — an endless, accelerating score-attack mode.</li>'+
-      '</ul>'+
-      '<div class="modal-actions"><button class="btn btn-submit" id="closeHowBtn">Got it</button></div>'+
-    '</div>';
-  document.body.appendChild(modal);
-  document.getElementById('closeHowBtn').addEventListener('click', ()=>modal.remove());
-  modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.remove(); });
-}
-
-function renderLeaderboardScreen(onBack){
-  STATE.screen='leaderboard';
-  const lb=getLeaderboard().slice().sort((a,b)=>b.score-a.score).slice(0,10);
-  let rows='';
-  if(!lb.length){
-    rows='<tr><td colspan="4" class="lb-empty">No runs saved yet. Be the first to set a benchmark.</td></tr>';
-  } else {
-    rows=lb.map((e,idx)=>
-      '<tr><td class="lb-rank">'+(idx+1)+'</td><td>'+escapeHtml(e.name)+'</td><td>'+escapeHtml(e.rank)+'</td><td class="lb-score">'+e.score.toLocaleString()+'</td></tr>'
-    ).join('');
+  if(S.hintsUsed>=2){
+    html+='<div class="hint-line"><strong>Hint 2.</strong> '+escapeHtml(describeChain(p.chain))+'.</div>';
   }
-  app.innerHTML =
-    '<div class="screen leaderboard-screen">'+
-      '<h2 style="font-family:var(--font-display);font-size:24px;margin-bottom:18px;">Leaderboard</h2>'+
-      '<table class="leaderboard-table">'+
-        '<thead><tr><th>#</th><th>Name</th><th>Rank</th><th style="text-align:right;">Score</th></tr></thead>'+
-        '<tbody>'+rows+'</tbody>'+
-      '</table>'+
-      '<div style="margin-top:24px;"><button class="btn btn-secondary" id="lbBackBtn">Back</button></div>'+
-    '</div>';
-  document.getElementById('lbBackBtn').addEventListener('click', onBack);
+  if(S.hintsUsed>=3){
+    html+='<div class="hint-line"><strong>Hint 3.</strong> The correct answer has been filled in. Press Submit to continue.</div>';
+  }
+  bar.innerHTML=html;
+  bar.style.display=S.hintsUsed>0?'':'none';
 }
 
-/* ============================================================
-   SECTION 9 — TUTORIAL (TIER 0)
-   ============================================================ */
-function renderTutorialIntro(){
-  STATE.tier=0;
-  STATE.levelInTier=0;
-  STATE.mistakesThisTier=0;
-  STATE.tierRunStats={attempts:0,correct:0,points:0};
-  loadTierPuzzle();
-}
-
-/* ============================================================
-   SECTION 10 — PUZZLE SCREEN
-   ============================================================ */
-function loadTierPuzzle(){
-  STATE.submitLocked=false;
-  const puzzle=generatePuzzleForTier(STATE.tier);
-  STATE.currentPuzzle=puzzle;
-  STATE.probesRemaining=puzzle.probesAllowed||0;
-  STATE.probesUsedThisPuzzle=0;
-  STATE.screen='puzzle';
-  renderPuzzleScreen();
-}
-
-function loadCrucibleRound(){
-  STATE.submitLocked=false;
-  const puzzle=generateCrucibleRound(STATE.crucibleRound);
-  STATE.currentPuzzle=puzzle;
-  STATE.probesRemaining=puzzle.probesAllowed||0;
-  STATE.probesUsedThisPuzzle=0;
-  STATE.screen='puzzle';
-  renderPuzzleScreen();
-}
-
-function updateLivesDisplay(){
-  const el=document.getElementById('livesDisplay');
-  if(!el) return;
-  const p=STATE.currentPuzzle;
-  el.innerHTML='';
-  if(p.tier===8){
+function updateHintButton(){
+  const btn=document.getElementById('hintBtn'); if(!btn) return;
+  const rem=3-S.hintsUsed;
+  const dotsEl=btn.querySelector('.hint-dots');
+  if(dotsEl){
+    dotsEl.innerHTML='';
     for(let i=0;i<3;i++){
-      const d=document.createElement('div');
-      d.className='life-dot'+(i<STATE.crucibleLives?'':' lost');
-      el.appendChild(d);
+      const d=document.createElement('div'); d.className='hdot'+(i>=rem?' used':''); dotsEl.appendChild(d);
     }
+  }
+  const labelEl=btn.querySelector('.hint-label');
+  if(labelEl) labelEl.textContent=rem>0?'Hint':'No hints';
+  if(rem<=0) btn.setAttribute('disabled','disabled');
+}
+
+/* =====================================================================
+   SECTION 10: PUZZLE SCREEN
+   ===================================================================== */
+function loadNextPuzzle(){
+  S.hintsUsed=0; S.gridLocked=false; S.examplesHidden=false;
+  S.submitLocked=false; clearRevealTimeout();
+  if(S.isEndless){
+    S.puzzle=generateEndlessPuzzle(S.endlessRound);
+    renderPuzzleScreen();
   } else {
-    for(let i=0;i<3;i++){
-      const d=document.createElement('div');
-      d.className='life-dot'+(i<(3-STATE.mistakesThisTier)?'':' lost');
-      el.appendChild(d);
-    }
+    S.puzzle=generatePuzzleForTier(S.tier);
+    renderPuzzleScreen();
   }
 }
 
 function renderPuzzleScreen(){
-  const p=STATE.currentPuzzle;
-  const cfg = p.tier===8 ? null : TIER_CONFIGS[p.tier];
-  const tierLabel = p.tier===8 ? p.tierLabel : cfg.name;
-  const levelLabel = p.tier===8 ? '' : ('Level '+(STATE.levelInTier+1)+' / '+cfg.puzzleCount);
+  const p=S.puzzle;
+  const d=S.isEndless?TIER_DISPLAY[8]:TIER_DISPLAY[p.tier];
+  const lvlLabel=S.isEndless?'Round '+(S.endlessRound+1):'Level '+(S.levelInTier+1)+' of '+TIER_CONFIGS[p.tier].puzzleCount;
 
-  app.innerHTML =
+  app.innerHTML=
     '<div class="screen puzzle-screen">'+
-      '<div class="topbar">'+
-        '<div class="topbar-left">'+
-          '<div class="tier-name">'+escapeHtml(tierLabel)+'</div>'+
-          '<div class="level-label">'+escapeHtml(levelLabel)+'</div>'+
+      '<div class="topbar" id="topBar">'+
+        '<div class="topbar-info">'+
+          '<div class="topbar-tier">'+escapeHtml(d.name)+'</div>'+
+          '<div class="topbar-level">'+escapeHtml(lvlLabel)+'</div>'+
         '</div>'+
-        '<div class="topbar-center"><div class="timer" id="timerDisplay">'+(p.timeLimit?formatTime(p.timeLimit):'—')+'</div></div>'+
         '<div class="topbar-right">'+
-          '<div class="lives" id="livesDisplay"></div>'+
-          '<div class="streak" id="streakDisplay">Streak '+STATE.streak+'</div>'+
-          '<div class="score" id="scoreDisplay">'+STATE.score.toLocaleString()+'</div>'+
-          '<button class="icon-btn" id="muteBtn" title="Mute">'+(STATE.muted?'\u{1F507}':'\u{1F50A}')+'</button>'+
-          '<button class="text-btn" id="endRunBtn">End run</button>'+
+          '<button class="icon-btn" id="muteBtn" title="Toggle sound">'+(S.muted?'\uD83D\uDD07':'\uD83D\uDD0A')+'</button>'+
+          '<button class="text-link" id="exitBtn">Exit</button>'+
         '</div>'+
       '</div>'+
-      '<div class="puzzle-body" id="puzzleBody">'+
-        (p.tier===0 ? '<div class="tutorial-banner"><strong>Welcome to AXIOM.</strong>Below are two Input → Output examples. A single hidden rule turned each Input into its Output. Study them, then paint the same rule onto the Test Input below to fill in Your Output, and press Submit.</div>' : '')+
+      '<div class="puzzle-body">'+
+        (p.tier===0?'<div class="tutorial-banner"><strong>Welcome.</strong> Each puzzle shows examples of a single transform. Replicate that transform on the test grid to proceed. Use hints if you get stuck.</div>':'')+
         '<div class="examples-section" id="examplesSection">'+
           '<div class="section-label">Examples</div>'+
           '<div class="examples-row" id="examplesRow"></div>'+
-          (p.memoryFlash ? '<div class="flash-note" id="flashNote">Memorize the rule — examples vanish in a moment.</div>' : '')+
+          (p.memoryFlash?'<div class="flash-note" id="flashNote">Memorize the transform. Examples will disappear.</div>':'')+
         '</div>'+
-        '<div class="test-section" id="testSection" style="'+(p.memoryFlash?'display:none;':'')+'">'+
+        '<div class="hint-bar" id="hintBar" style="display:none;"></div>'+
+        '<div class="test-section" id="testSection"'+(p.memoryFlash?'style="display:none;"':'')+'>'+
           '<div class="test-grids">'+
-            '<div class="grid-block"><div class="section-label">Test Input</div><div class="grid-wrap" id="testInputWrap"></div></div>'+
+            '<div class="grid-block">'+
+              '<div class="section-label">Test Input</div>'+
+              '<div id="testInputWrap"></div>'+
+            '</div>'+
             '<div class="arrow-glyph">\u2192</div>'+
-            '<div class="grid-block"><div class="section-label">Your Output</div><div class="grid-wrap" id="testOutputWrap"></div></div>'+
+            '<div class="grid-block">'+
+              '<div class="section-label">Your Output</div>'+
+              '<div class="grid-sub">Paint the correct result</div>'+
+              '<div id="testOutputWrap"></div>'+
+            '</div>'+
           '</div>'+
           '<div class="palette-row" id="paletteRow"></div>'+
+          '<div class="progress-dots" id="progressDots"></div>'+
           '<div class="actions-row">'+
-            (p.probesAllowed ? '<button class="btn btn-probe" id="probeBtn">Probe (<span class="probe-token-count" id="probeCount">'+STATE.probesRemaining+'</span>)</button>' : '')+
-            '<button class="btn btn-submit" id="submitBtn">Submit</button>'+
+            '<div class="actions-left">'+
+              '<button class="btn btn-hint" id="hintBtn"><div class="hint-dots"></div><span class="hint-label">Hint</span></button>'+
+              '<button class="btn btn-skip" id="skipBtn">Skip</button>'+
+            '</div>'+
+            '<div class="actions-right">'+
+              '<button class="btn btn-primary" id="submitBtn">Submit</button>'+
+            '</div>'+
           '</div>'+
         '</div>'+
       '</div>'+
     '</div>';
 
-  const examplesRow=document.getElementById('examplesRow');
-  p.examples.forEach(ex=>{
-    const pair=document.createElement('div'); pair.className='example-pair';
-    const inBlock=document.createElement('div'); inBlock.className='mini-grid-block';
-    inBlock.appendChild(labelEl('Input'));
-    inBlock.appendChild(renderGridDOM(ex.input,{editable:false}));
-    const arrow=document.createElement('div'); arrow.className='mini-arrow'; arrow.textContent='\u2192';
-    const outBlock=document.createElement('div'); outBlock.className='mini-grid-block';
-    outBlock.appendChild(labelEl('Output'));
-    outBlock.appendChild(renderGridDOM(ex.output,{editable:false}));
-    pair.appendChild(inBlock); pair.appendChild(arrow); pair.appendChild(outBlock);
-    examplesRow.appendChild(pair);
-  });
+  // Render example pairs
+  const exRow=document.getElementById('examplesRow');
+  p.examples.forEach(ex=>{ exRow.appendChild(renderExamplePair(ex)); });
 
-  updateLivesDisplay();
-
-  document.getElementById('muteBtn').addEventListener('click', ()=>{
-    STATE.muted=!STATE.muted;
-    document.getElementById('muteBtn').textContent = STATE.muted ? '\u{1F507}' : '\u{1F50A}';
-    try{ localStorage.setItem('axiom_muted', STATE.muted?'1':'0'); }catch(e){}
-  });
-  document.getElementById('endRunBtn').addEventListener('click', ()=>{
-    stopTimer();
-    goToProfile();
-  });
-
+  // Memory flash: hide examples after delay
   if(p.memoryFlash){
     setTimeout(()=>{
-      const es=document.getElementById('examplesSection');
-      const ts=document.getElementById('testSection');
-      if(es) es.style.display='none';
-      if(ts) ts.style.display='';
+      S.examplesHidden=true;
+      const es=document.getElementById('examplesSection'); if(es) es.style.display='none';
+      const ts=document.getElementById('testSection'); if(ts) ts.style.display='';
       mountTestArea();
-      startTimerIfNeeded();
-    }, p.flashMs);
+    },p.flashMs);
   } else {
     mountTestArea();
-    startTimerIfNeeded();
   }
+
+  // Controls
+  document.getElementById('muteBtn').addEventListener('click',()=>{
+    S.muted=!S.muted;
+    document.getElementById('muteBtn').textContent=S.muted?'\uD83D\uDD07':'\uD83D\uDD0A';
+    try{ localStorage.setItem('axiom_muted',S.muted?'1':'0'); }catch(e){}
+  });
+  document.getElementById('exitBtn').addEventListener('click',()=>{ clearRevealTimeout(); renderTitleScreen(); });
+  document.getElementById('hintBtn').addEventListener('click',applyHint);
+  document.getElementById('skipBtn').addEventListener('click',handleSkip);
+  document.getElementById('submitBtn').addEventListener('click',handleSubmit);
+
+  updateHintButton();
+  renderProgressDots(document.getElementById('progressDots'));
 }
 
 function mountTestArea(){
-  const p=STATE.currentPuzzle;
-  STATE.workingGrid=makeGrid(p.ctx.size, 0);
-  STATE.selectedColor=1;
-  STATE.cursor={r:0,c:0};
+  const p=S.puzzle;
+  S.workingGrid=makeGrid(p.ctx.size,0);
+  S.selectedColor=1;
+  S.cursor={r:0,c:0};
 
-  const testInputWrap=document.getElementById('testInputWrap');
-  testInputWrap.innerHTML='';
-  testInputWrap.appendChild(renderGridDOM(p.testInput,{editable:false}));
+  const inWrap=document.getElementById('testInputWrap');
+  inWrap.innerHTML='';
+  inWrap.appendChild(renderGridDOM(p.testInput,{id:'testInputGrid'}));
 
-  const testOutputWrap=document.getElementById('testOutputWrap');
-  testOutputWrap.innerHTML='';
-  const outGrid=renderGridDOM(STATE.workingGrid,{editable:true, onCellClick:(r,c)=>paintCell(r,c)});
-  outGrid.id='testOutputGrid';
-  testOutputWrap.appendChild(outGrid);
+  const outWrap=document.getElementById('testOutputWrap');
+  outWrap.innerHTML='';
+  const outG=renderGridDOM(S.workingGrid,{editable:true,id:'testOutputGrid',onCellClick:paintCell});
+  outWrap.appendChild(outG);
   highlightCursor();
 
-  const paletteRow=document.getElementById('paletteRow');
-  paletteRow.innerHTML='';
+  const pal=document.getElementById('paletteRow');
+  pal.innerHTML='';
   for(let c=1;c<=p.ctx.paletteCount;c++){
     const sw=document.createElement('button');
-    sw.className='swatch'+(c===STATE.selectedColor?' swatch-selected':'');
-    sw.style.background=PALETTE[c-1];
-    sw.dataset.color=c;
-    sw.addEventListener('click', ()=>selectColor(c));
-    paletteRow.appendChild(sw);
+    sw.className='swatch'+(c===1?' active':'');
+    sw.style.background=PALETTE[c-1]; sw.dataset.color=c;
+    sw.addEventListener('click',()=>selectColor(c));
+    pal.appendChild(sw);
   }
-  const eraser=document.createElement('button');
-  eraser.className='swatch swatch-eraser';
-  eraser.textContent='\u2715';
-  eraser.dataset.color='0';
-  eraser.addEventListener('click', ()=>selectColor(0));
-  paletteRow.appendChild(eraser);
-
-  document.getElementById('submitBtn').addEventListener('click', handleSubmit);
-  if(p.probesAllowed){
-    const pb=document.getElementById('probeBtn');
-    if(pb) pb.addEventListener('click', openProbeModal);
-  }
+  const er=document.createElement('button');
+  er.className='swatch swatch-erase'; er.textContent='\u2715'; er.dataset.color='0';
+  er.addEventListener('click',()=>selectColor(0));
+  pal.appendChild(er);
 }
 
 function selectColor(c){
-  STATE.selectedColor=c;
-  const swatches=document.querySelectorAll('#paletteRow .swatch');
-  swatches.forEach(s=>{
-    s.classList.toggle('swatch-selected', s.dataset.color===String(c));
-  });
+  S.selectedColor=c;
+  document.querySelectorAll('#paletteRow .swatch').forEach(s=>s.classList.toggle('active',s.dataset.color===String(c)));
 }
 
 function paintCell(r,c){
-  STATE.workingGrid[r][c]=STATE.selectedColor;
-  const grid=document.getElementById('testOutputGrid');
-  if(!grid) return;
-  const cellEl=grid.querySelector('.cell[data-r="'+r+'"][data-c="'+c+'"]');
-  applyCellColor(cellEl, STATE.selectedColor);
-  cellEl.classList.add('cell-pulse');
-  setTimeout(()=>cellEl.classList.remove('cell-pulse'),200);
-  STATE.cursor={r,c};
-  highlightCursor();
+  if(S.gridLocked) return;
+  S.workingGrid[r][c]=S.selectedColor;
+  const g=document.getElementById('testOutputGrid'); if(!g) return;
+  const cell=g.querySelector('.cell[data-r="'+r+'"][data-c="'+c+'"]');
+  if(cell){ cell.className='cell'+(S.selectedColor?'':' cell-empty'); if(S.selectedColor) cell.style.background=PALETTE[S.selectedColor-1]; else cell.style.background=''; }
+  S.cursor={r,c}; highlightCursor();
 }
 
 function highlightCursor(){
-  const grid=document.getElementById('testOutputGrid');
-  if(!grid) return;
-  grid.querySelectorAll('.cell-cursor').forEach(c=>c.classList.remove('cell-cursor'));
-  const cellEl=grid.querySelector('.cell[data-r="'+STATE.cursor.r+'"][data-c="'+STATE.cursor.c+'"]');
-  if(cellEl) cellEl.classList.add('cell-cursor');
+  const g=document.getElementById('testOutputGrid'); if(!g) return;
+  g.querySelectorAll('.cell-cursor').forEach(c=>c.classList.remove('cell-cursor'));
+  const cell=g.querySelector('.cell[data-r="'+S.cursor.r+'"][data-c="'+S.cursor.c+'"]');
+  if(cell) cell.classList.add('cell-cursor');
 }
 
 function moveCursor(dr,dc){
-  const p=STATE.currentPuzzle;
-  if(!p || !document.getElementById('testOutputGrid')) return;
-  const size=p.ctx.size;
-  let r=STATE.cursor.r+dr, c=STATE.cursor.c+dc;
-  r=Math.max(0, Math.min(size-1, r));
-  c=Math.max(0, Math.min(size-1, c));
-  STATE.cursor={r,c};
+  if(!document.getElementById('testOutputGrid')) return;
+  const n=S.puzzle.ctx.size;
+  S.cursor.r=Math.max(0,Math.min(n-1,S.cursor.r+dr));
+  S.cursor.c=Math.max(0,Math.min(n-1,S.cursor.c+dc));
   highlightCursor();
 }
 
-/* ---------- Timer ---------- */
-function timerTick(){
-  STATE.timerRemaining -= 0.25;
-  if(STATE.timerRemaining<=0){
-    STATE.timerRemaining=0;
-    updateTimerDisplay();
-    stopTimer();
-    handleTimeout();
-    return;
-  }
-  updateTimerDisplay();
-}
-function startTimerIfNeeded(){
-  const p=STATE.currentPuzzle;
-  if(!p.timeLimit){
-    STATE.timerRemaining=null;
-    const td=document.getElementById('timerDisplay');
-    if(td) td.textContent='—';
-    return;
-  }
-  STATE.timerRemaining=p.timeLimit;
-  updateTimerDisplay();
-  stopTimer();
-  STATE.timerInterval=setInterval(timerTick, 250);
-}
-function stopTimer(){
-  if(STATE.timerInterval){ clearInterval(STATE.timerInterval); STATE.timerInterval=null; }
-}
-function pauseTimer(){ stopTimer(); }
-function resumeTimer(){
-  const p=STATE.currentPuzzle;
-  if(p && p.timeLimit && !STATE.submitLocked && STATE.timerRemaining>0){
-    stopTimer();
-    STATE.timerInterval=setInterval(timerTick, 250);
-  }
-}
-function updateTimerDisplay(){
-  const td=document.getElementById('timerDisplay');
-  if(!td) return;
-  const p=STATE.currentPuzzle;
-  td.textContent=formatTime(STATE.timerRemaining);
-  const frac=STATE.timerRemaining/p.timeLimit;
-  td.classList.toggle('timer-warning', frac<=0.25 && frac>0.1);
-  td.classList.toggle('timer-critical', frac<=0.1);
-}
-
-/* ---------- Probe ---------- */
-function openProbeModal(){
-  if(STATE.probesRemaining<=0) return;
-  pauseTimer();
-  const p=STATE.currentPuzzle;
-  const probeGrid=makeGrid(p.ctx.size, 1);
-  let probeSelectedColor=1;
-
-  const modal=document.createElement('div');
-  modal.className='modal-backdrop';
-  modal.id='probeModal';
-  modal.innerHTML =
-    '<div class="modal probe-modal">'+
-      '<div class="modal-title">Probe — test the hidden rule</div>'+
-      '<div class="modal-sub">Paint any grid you like. The hidden rule will be applied to it so you can see the result — this will not be scored as your final answer.</div>'+
-      '<div class="grid-wrap" id="probeGridWrap"></div>'+
-      '<div class="palette-row" id="probePaletteRow" style="margin-top:14px;"></div>'+
+/* =====================================================================
+   SECTION 11: SKIP
+   ===================================================================== */
+function handleSkip(){
+  const noConfirm=_getSkipNoConfirm();
+  if(noConfirm){ doSkip(); return; }
+  const bg=document.createElement('div'); bg.className='modal-bg'; bg.id='skipModalBg';
+  bg.innerHTML=
+    '<div class="modal">'+
+      '<div class="modal-title">Skip this puzzle?</div>'+
+      '<div class="modal-body">You will move to the next puzzle. You cannot return to this one.</div>'+
+      '<label class="checkbox-label"><input type="checkbox" id="skipNoConfirmChk"> Don\'t ask me again</label>'+
       '<div class="modal-actions">'+
-        '<button class="btn btn-secondary" id="probeCancelBtn">Cancel</button>'+
-        '<button class="btn btn-probe" id="probeRunBtn">Run Probe</button>'+
-      '</div>'+
-      '<div class="probe-result hidden" id="probeResultBlock">'+
-        '<div class="section-label">Result</div>'+
-        '<div class="grid-wrap" id="probeResultWrap"></div>'+
-        '<div class="modal-actions"><button class="btn btn-submit" id="probeCloseBtn">Close</button></div>'+
+        '<button class="btn btn-secondary" id="skipCancelBtn">Cancel</button>'+
+        '<button class="btn btn-primary" id="skipConfirmBtn">Skip</button>'+
       '</div>'+
     '</div>';
-  document.body.appendChild(modal);
-
-  function renderProbeGrid(){
-    const wrap=document.getElementById('probeGridWrap');
-    wrap.innerHTML='';
-    const g=renderGridDOM(probeGrid,{editable:true, onCellClick:(r,c)=>{
-      probeGrid[r][c]=probeSelectedColor;
-      renderProbeGrid();
-    }});
-    wrap.appendChild(g);
-  }
-  renderProbeGrid();
-
-  const paletteRow=document.getElementById('probePaletteRow');
-  for(let c=1;c<=p.ctx.paletteCount;c++){
-    const sw=document.createElement('button');
-    sw.className='swatch'+(c===probeSelectedColor?' swatch-selected':'');
-    sw.style.background=PALETTE[c-1];
-    sw.dataset.color=c;
-    sw.addEventListener('click', ()=>{
-      probeSelectedColor=c;
-      paletteRow.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('swatch-selected', s.dataset.color===String(c)));
-    });
-    paletteRow.appendChild(sw);
-  }
-
-  document.getElementById('probeCancelBtn').addEventListener('click', ()=>{
-    modal.remove();
-    resumeTimer();
-  });
-
-  document.getElementById('probeRunBtn').addEventListener('click', ()=>{
-    const result=applyChainToGrid(probeGrid, p.chain, p.ctx);
-    STATE.probesRemaining--;
-    STATE.probesUsedThisPuzzle++;
-    STATE.totalProbesUsed++;
-    const countEl=document.getElementById('probeCount');
-    if(countEl) countEl.textContent=STATE.probesRemaining;
-    const probeBtn=document.getElementById('probeBtn');
-    if(probeBtn && STATE.probesRemaining<=0) probeBtn.setAttribute('disabled','disabled');
-
-    const resWrap=document.getElementById('probeResultWrap');
-    resWrap.innerHTML='';
-    resWrap.appendChild(renderGridDOM(result,{editable:false}));
-    document.getElementById('probeResultBlock').classList.remove('hidden');
-    document.getElementById('probeRunBtn').setAttribute('disabled','disabled');
-    document.getElementById('probeCancelBtn').textContent='Done';
-  });
-
-  document.getElementById('probeCloseBtn').addEventListener('click', ()=>{
-    modal.remove();
-    resumeTimer();
+  document.body.appendChild(bg);
+  bg.addEventListener('click',e=>{ if(e.target===bg) bg.remove(); });
+  document.getElementById('skipCancelBtn').addEventListener('click',()=>bg.remove());
+  document.getElementById('skipConfirmBtn').addEventListener('click',()=>{
+    if(document.getElementById('skipNoConfirmChk').checked) _setSkipNoConfirm(true);
+    bg.remove();
+    doSkip();
   });
 }
 
-/* ---------- Submission ---------- */
-function evaluateAndAdvance(forcedIncorrect){
-  if(STATE.submitLocked) return;
-  STATE.submitLocked=true;
-  stopTimer();
-  const p=STATE.currentPuzzle;
-  const correct = forcedIncorrect ? false : gridsEqual(STATE.workingGrid, p.testOutput);
-  const elapsed = p.timeLimit ? (p.timeLimit-(STATE.timerRemaining||0)) : null;
-  recordStat(p.category, correct, elapsed);
+function doSkip(){ clearRevealTimeout(); removeRevealPanel(); advancePuzzle(); }
+function _getSkipNoConfirm(){ try{ return localStorage.getItem('axiom_skip_noconfirm')==='1'; }catch(e){ return false; } }
+function _setSkipNoConfirm(v){ try{ localStorage.setItem('axiom_skip_noconfirm',v?'1':'0'); }catch(e){} }
+
+/* =====================================================================
+   SECTION 12: SUBMIT / REVEAL / ADVANCE
+   ===================================================================== */
+function handleSubmit(){
+  if(S.submitLocked) return;
+  S.submitLocked=true;
+  const p=S.puzzle;
+  const correct=gridsEqual(S.workingGrid,p.testOutput);
+  const outG=document.getElementById('testOutputGrid');
 
   if(correct){
-    STATE.streak++;
-    const frac = p.timeLimit ? Math.max(0, Math.min(1, (STATE.timerRemaining||0)/p.timeLimit)) : null;
-    const pts = computeScore(p, frac, STATE.streak-1, STATE.probesUsedThisPuzzle);
-    STATE.score += pts;
-    STATE.tierRunStats.attempts++;
-    STATE.tierRunStats.correct++;
-    STATE.tierRunStats.points += pts;
-    showSubmitFeedback(true, pts);
     playTone(true);
+    if(outG) outG.classList.add('state-ok');
   } else {
-    STATE.streak=0;
-    STATE.tierRunStats.attempts++;
-    showSubmitFeedback(false, 0);
     playTone(false);
-    registerMistake();
-  }
-
-  updateTopbarLive();
-
-  setTimeout(()=>{ proceedAfterSubmission(); }, 900);
-}
-
-function handleSubmit(){ evaluateAndAdvance(false); }
-function handleTimeout(){ evaluateAndAdvance(true); }
-
-function showSubmitFeedback(correct, pts){
-  const grid=document.getElementById('testOutputGrid');
-  if(grid){
-    grid.classList.add(correct?'grid-success':'grid-error');
-    setTimeout(()=>{ grid.classList.remove('grid-success','grid-error'); }, 700);
-  }
-  showToast(correct? ('+'+pts) : 'Incorrect', correct?'success':'error');
-}
-
-function updateTopbarLive(){
-  const sd=document.getElementById('streakDisplay');
-  if(sd) sd.textContent='Streak '+STATE.streak;
-  const sc=document.getElementById('scoreDisplay');
-  if(sc) sc.textContent=STATE.score.toLocaleString();
-  updateLivesDisplay();
-}
-
-function registerMistake(){
-  const p=STATE.currentPuzzle;
-  if(p.tier===8){
-    STATE.crucibleLives--;
-  } else {
-    STATE.mistakesThisTier++;
-    if(STATE.mistakesThisTier>=3){ STATE.tierResetPending=true; }
-  }
-}
-
-function proceedAfterSubmission(){
-  const p=STATE.currentPuzzle;
-
-  if(p.tier===8){
-    if(STATE.crucibleLives<=0){ goToProfile(); return; }
-    STATE.crucibleRound++;
-    loadCrucibleRound();
-    return;
-  }
-
-  if(STATE.tierResetPending){
-    STATE.tierResetPending=false;
-    STATE.mistakesThisTier=0;
-    STATE.levelInTier=0;
-    STATE.tierRunStats={attempts:0,correct:0,points:0};
-    showToast('Tier reset — sharpen up', 'error');
-    setTimeout(()=>{ loadTierPuzzle(); }, 650);
-    return;
-  }
-
-  STATE.levelInTier++;
-  const cfg=TIER_CONFIGS[STATE.tier];
-  if(STATE.levelInTier>=cfg.puzzleCount){
-    goToTierComplete();
-  } else {
-    loadTierPuzzle();
-  }
-}
-
-/* ============================================================
-   SECTION 11 — TIER COMPLETE / CRUCIBLE GATE
-   ============================================================ */
-function goToTierComplete(){
-  STATE.screen='tierComplete';
-  if(STATE.tier>STATE.maxTierReached) STATE.maxTierReached=STATE.tier;
-  const cfg=TIER_CONFIGS[STATE.tier];
-  const stats=STATE.tierRunStats;
-  const acc = stats.attempts ? Math.round(100*stats.correct/stats.attempts) : 100;
-  const isFinalTier = STATE.tier===7;
-
-  app.innerHTML =
-    '<div class="screen interstitial-screen">'+
-      '<div class="interstitial-card" id="interstitialCard">'+
-        '<div class="interstitial-eyebrow">Tier complete</div>'+
-        '<div class="interstitial-title">'+escapeHtml(cfg.name)+'</div>'+
-        '<div class="interstitial-stats">'+
-          '<div class="istat"><div class="istat-value">'+acc+'%</div><div class="istat-label">Accuracy</div></div>'+
-          '<div class="istat"><div class="istat-value">+'+stats.points.toLocaleString()+'</div><div class="istat-label">Points earned</div></div>'+
-        '</div>'+
-        (isFinalTier
-          ? '<div style="display:flex;flex-direction:column;gap:12px;align-items:center;">'+
-              '<button class="btn btn-probe btn-large" id="enterCrucibleBtn">Enter The Crucible</button>'+
-              '<button class="text-btn" id="skipCrucibleBtn">End run and view profile</button>'+
-            '</div>'
-          : '<button class="btn btn-submit btn-large" id="continueBtn">Continue</button>')+
-      '</div>'+
-    '</div>';
-
-  spawnBurst(document.getElementById('interstitialCard'), 20, [PALETTE[1],PALETTE[3],'#4CC9F0','#2EC4B6']);
-
-  if(isFinalTier){
-    document.getElementById('enterCrucibleBtn').addEventListener('click', ()=>{
-      STATE.crucibleLives=3;
-      STATE.crucibleRound=0;
-      STATE.maxTierReached=8;
-      loadCrucibleRound();
-    });
-    document.getElementById('skipCrucibleBtn').addEventListener('click', goToProfile);
-  } else {
-    document.getElementById('continueBtn').addEventListener('click', ()=>{
-      STATE.tier++;
-      STATE.levelInTier=0;
-      STATE.mistakesThisTier=0;
-      STATE.tierRunStats={attempts:0,correct:0,points:0};
-      loadTierPuzzle();
-    });
-  }
-}
-
-/* ============================================================
-   SECTION 12 — COGNITIVE PROFILE
-   ============================================================ */
-function tierNameSafe(idx){
-  if(idx===8) return 'The Crucible';
-  if(TIER_CONFIGS[idx]) return TIER_CONFIGS[idx].name;
-  return '—';
-}
-
-function goToProfile(){
-  STATE.screen='profile';
-  renderProfileScreen();
-}
-
-function renderProfileScreen(){
-  const rank=calcRank(STATE.score);
-  const rows=PROFILE_CATEGORIES.map(cat=>{
-    const s=STATE.profileStats[cat] || {attempts:0,correct:0,timeSum:0};
-    const acc = s.attempts ? Math.round(100*s.correct/s.attempts) : 0;
-    const avg = s.attempts ? (s.timeSum/s.attempts).toFixed(1)+'s' : '—';
-    return '<tr><td>'+cat+'</td><td>'+s.attempts+'</td><td>'+(s.attempts?acc+'%':'—')+'</td><td>'+avg+'</td></tr>';
-  }).join('');
-
-  app.innerHTML =
-    '<div class="screen profile-screen">'+
-      '<div class="profile-card">'+
-        '<div class="profile-rank">'+escapeHtml(rank)+'</div>'+
-        '<div class="profile-score">'+STATE.score.toLocaleString()+' pts</div>'+
-        '<table class="profile-table">'+
-          '<thead><tr><th>Category</th><th>Attempts</th><th>Accuracy</th><th>Avg time</th></tr></thead>'+
-          '<tbody>'+rows+'</tbody>'+
-        '</table>'+
-        '<div class="profile-meta">Probes used: '+STATE.totalProbesUsed+' &middot; Highest tier reached: '+escapeHtml(tierNameSafe(STATE.maxTierReached))+'</div>'+
-        '<div class="save-row">'+
-          '<input id="initialsInput" maxlength="4" placeholder="INITIALS" />'+
-          '<button class="btn btn-submit" id="saveScoreBtn">Save Score</button>'+
-        '</div>'+
-        '<div class="profile-actions">'+
-          '<button class="btn btn-secondary" id="viewLeaderboardBtn">Leaderboard</button>'+
-          '<button class="btn btn-secondary" id="restartBtn">New Run</button>'+
-        '</div>'+
-        '<div class="disclaimer">AXIOM is a self-test for sharp reasoning practice, built for fun and focus training. It is not a validated psychometric or IQ instrument — treat the rank as a game score, not a diagnosis of intelligence.</div>'+
-      '</div>'+
-    '</div>';
-
-  document.getElementById('saveScoreBtn').addEventListener('click', ()=>{
-    const input=document.getElementById('initialsInput');
-    let name=(input.value||'').trim().toUpperCase().slice(0,4);
-    if(!name) name='YOU';
-    const lb=getLeaderboard();
-    lb.push({ name, score:STATE.score, rank, date:Date.now() });
-    lb.sort((a,b)=>b.score-a.score);
-    saveLeaderboard(lb.slice(0,10));
-    showToast('Saved', 'success');
-    document.getElementById('saveScoreBtn').setAttribute('disabled','disabled');
-  });
-  document.getElementById('viewLeaderboardBtn').addEventListener('click', ()=>renderLeaderboardScreen(()=>renderProfileScreen()));
-  document.getElementById('restartBtn').addEventListener('click', ()=>{
-    resetRunState();
-    renderTitleScreen();
-  });
-}
-
-/* ============================================================
-   SECTION 13 — KEYBOARD CONTROLS
-   ============================================================ */
-document.addEventListener('keydown', (e)=>{
-  if(STATE.screen!=='puzzle') return;
-  if(document.getElementById('probeModal')) return;
-  const p=STATE.currentPuzzle;
-  if(!p || !document.getElementById('testOutputGrid')) return;
-
-  if(e.key>='1' && e.key<='6'){
-    const c=parseInt(e.key,10);
-    if(c<=p.ctx.paletteCount){
-      selectColor(c);
-      paintCell(STATE.cursor.r, STATE.cursor.c);
+    // Pulse wrong cells, then reveal correct answer
+    if(outG){
+      outG.classList.add('state-err');
+      const cells=outG.querySelectorAll('.cell');
+      cells.forEach(cell=>{
+        const r=parseInt(cell.dataset.r),c=parseInt(cell.dataset.c);
+        if(S.workingGrid[r][c]!==p.testOutput[r][c]) cell.classList.add('cell-wrong');
+      });
+      // After brief pause, show correct colors on wrong cells
+      setTimeout(()=>{
+        cells.forEach(cell=>{
+          const r=parseInt(cell.dataset.r),c=parseInt(cell.dataset.c);
+          if(S.workingGrid[r][c]!==p.testOutput[r][c]){
+            const cv=p.testOutput[r][c];
+            cell.classList.remove('cell-wrong');
+            cell.className='cell cell-revealed';
+            if(cv) cell.style.background=PALETTE[cv-1]; else cell.style.background='';
+          }
+        });
+      },500);
     }
-  } else if(e.key==='0' || e.key==='Backspace'){
-    selectColor(0);
-    paintCell(STATE.cursor.r, STATE.cursor.c);
-  } else if(e.key==='ArrowUp'){ e.preventDefault(); moveCursor(-1,0); }
+  }
+
+  // Lock grid and palette
+  S.gridLocked=true;
+  document.getElementById('submitBtn').setAttribute('disabled','disabled');
+  document.getElementById('hintBtn').setAttribute('disabled','disabled');
+  document.getElementById('skipBtn').setAttribute('disabled','disabled');
+
+  // Show rule reveal panel after short delay
+  setTimeout(()=>showRuleReveal(correct,p),correct?350:1100);
+}
+
+function showRuleReveal(correct,p){
+  removeRevealPanel();
+  const rule=describeChain(p.chain);
+  const panel=document.createElement('div'); panel.className='rule-reveal'; panel.id='ruleRevealPanel';
+  let examHtml='';
+  if(!correct){
+    // Show first example as reference
+    const ex=p.examples[0];
+    const tmpDiv=document.createElement('div'); tmpDiv.className='reveal-example';
+    const lbl=document.createElement('span'); lbl.className='reveal-example-label'; lbl.textContent='Reference:';
+    tmpDiv.appendChild(lbl);
+    const pair=renderExamplePair(ex,new Set(),true);
+    pair.querySelectorAll('.example-pair').forEach(ep=>ep.style.background='transparent');
+    tmpDiv.appendChild(pair);
+    examHtml='<!-- exam -->';
+  }
+
+  panel.innerHTML=
+    '<div class="reveal-inner">'+
+      '<div class="reveal-status '+(correct?'ok':'err')+'">'+
+        '<span class="reveal-icon">'+(correct?'\u2713':'\u2717')+'</span>'+
+        '<span>'+(correct?'Correct.':'Incorrect.')+'</span>'+
+      '</div>'+
+      '<div class="reveal-rule"><strong>Rule:</strong> '+escapeHtml(rule)+'.</div>'+
+      (correct?'':'<div id="revealExampleSlot"></div>')+
+      '<div class="reveal-bar"><div class="reveal-bar-fill"></div></div>'+
+      '<div class="reveal-foot"><button class="btn btn-primary" id="revealNextBtn">Continue</button></div>'+
+    '</div>';
+
+  document.body.appendChild(panel);
+
+  // Inject example pair DOM for incorrect (avoids innerHTML truncation)
+  if(!correct){
+    const slot=document.getElementById('revealExampleSlot');
+    if(slot){
+      const ex=p.examples[0];
+      const row=document.createElement('div'); row.className='reveal-example';
+      const lbl=document.createElement('span'); lbl.className='reveal-example-label'; lbl.textContent='Reference:';
+      row.appendChild(lbl);
+      row.appendChild(renderExamplePair(ex,new Set(),true));
+      slot.replaceWith(row);
+    }
+  }
+
+  document.getElementById('revealNextBtn').addEventListener('click',()=>{ clearRevealTimeout(); removeRevealPanel(); advancePuzzle(); });
+
+  S.revealTimeout=setTimeout(()=>{ removeRevealPanel(); advancePuzzle(); },4000);
+}
+
+function removeRevealPanel(){ const p=document.getElementById('ruleRevealPanel'); if(p) p.remove(); }
+
+function advancePuzzle(){
+  clearRevealTimeout(); removeRevealPanel();
+  if(S.isEndless){
+    S.endlessRound++;
+    S.puzzle=generateEndlessPuzzle(S.endlessRound);
+    S.hintsUsed=0; S.gridLocked=false; S.examplesHidden=false; S.submitLocked=false;
+    renderPuzzleScreen();
+    return;
+  }
+  S.levelInTier++;
+  const cfg=TIER_CONFIGS[S.tier];
+  if(S.levelInTier>=cfg.puzzleCount){
+    renderTierComplete();
+  } else {
+    S.puzzle=generatePuzzleForTier(S.tier);
+    S.hintsUsed=0; S.gridLocked=false; S.examplesHidden=false; S.submitLocked=false;
+    renderPuzzleScreen();
+  }
+}
+
+/* =====================================================================
+   SECTION 13: SCREENS
+   ===================================================================== */
+
+/* ---- Title ---- */
+function renderTitleScreen(){
+  S.screen='title';
+  app.innerHTML=
+    '<div class="screen title-screen">'+
+      '<div class="title-deco" id="titleDeco"></div>'+
+      '<h1 class="title-logo">AXIOM</h1>'+
+      '<div class="title-tag">FIND THE RULE.</div>'+
+      '<div class="title-actions">'+
+        '<button class="btn btn-primary" style="padding:15px 38px;font-size:16px;" id="beginBtn">Begin</button>'+
+        '<button class="text-link" id="howBtn">How it works</button>'+
+      '</div>'+
+      '<div class="title-note">AXIOM is a rule-deduction puzzle game. It is not a psychometric instrument. Every puzzle has a logically derivable answer; no randomness determines whether you are correct.</div>'+
+    '</div>';
+
+  const deco=document.getElementById('titleDeco');
+  [1,4,6,2,0,2,5,3,1].forEach((v,i)=>{
+    const d=document.createElement('div'); d.className='dc';
+    d.style.background=v?PALETTE[v-1]:'var(--elevated)';
+    d.style.animation='fadeUp '+(300+i*60)+'ms ease-out both';
+    deco.appendChild(d);
+  });
+
+  document.getElementById('beginBtn').addEventListener('click',()=>{ resetRun(); startRun(); });
+  document.getElementById('howBtn').addEventListener('click',openHowItWorks);
+}
+
+function openHowItWorks(){
+  const bg=document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML=
+    '<div class="modal">'+
+      '<div class="modal-title">How AXIOM works</div>'+
+      '<ul class="howitworks">'+
+        '<li><span class="n">1.</span>Each puzzle shows one or more example pairs. Each pair contains an input grid and its output after a hidden transform.</li>'+
+        '<li><span class="n">2.</span>Study the examples to identify the rule. Then paint the correct output for the test grid.</li>'+
+        '<li><span class="n">3.</span>Use Hint (up to 3 times per puzzle): first it highlights changed cells, then describes the rule, then fills in the answer.</li>'+
+        '<li><span class="n">4.</span>Use Skip if you want to move on without answering. You cannot return to a skipped puzzle.</li>'+
+        '<li><span class="n">5.</span>After every submission, the rule is shown in plain English before the next puzzle loads.</li>'+
+        '<li><span class="n">6.</span>There are 8 tiers of increasing difficulty. Completing all 8 unlocks Endless Mode.</li>'+
+      '</ul>'+
+      '<div class="modal-actions"><button class="btn btn-primary" id="closeHowBtn">Got it</button></div>'+
+    '</div>';
+  document.body.appendChild(bg);
+  bg.addEventListener('click',e=>{ if(e.target===bg) bg.remove(); });
+  document.getElementById('closeHowBtn').addEventListener('click',()=>bg.remove());
+}
+
+function startRun(){
+  S.tier=0; S.levelInTier=0; S.isEndless=false;
+  S.puzzle=generatePuzzleForTier(0);
+  S.hintsUsed=0; S.gridLocked=false; S.examplesHidden=false; S.submitLocked=false;
+  renderPuzzleScreen();
+}
+
+/* ---- Tier Complete ---- */
+function renderTierComplete(){
+  const cfg=TIER_CONFIGS[S.tier];
+  const d=TIER_DISPLAY[S.tier];
+  const isFinal=S.tier===7;
+  const nextD=!isFinal?TIER_DISPLAY[S.tier+1]:null;
+
+  app.innerHTML=
+    '<div class="screen tier-screen">'+
+      '<div class="tier-card" id="tierCard">'+
+        '<div class="tier-eyebrow">Tier '+(S.tier+1)+' complete</div>'+
+        '<div class="tier-name">'+escapeHtml(d.name)+'</div>'+
+        '<div class="tier-sub">'+escapeHtml(d.sub)+'</div>'+
+        (isFinal
+          ? '<div class="tier-actions">'+
+              '<button class="btn btn-primary" id="endlessBtn">Try Endless Mode</button>'+
+              '<button class="btn btn-secondary" id="restartBtn">Start over</button>'+
+            '</div>'
+          : '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">'+
+              '<div class="tier-next-label">Next up</div>'+
+              '<div class="tier-next-name">'+escapeHtml(nextD.name)+'</div>'+
+              '<div style="font-size:13px;color:var(--muted);margin-bottom:6px;">'+escapeHtml(nextD.sub)+'</div>'+
+            '</div>'+
+            '<div class="tier-actions"><button class="btn btn-primary" id="continueBtn">Continue</button></div>')+
+      '</div>'+
+    '</div>';
+
+  spawnBurst(document.getElementById('tierCard'),18,[PALETTE[0],PALETTE[2],PALETTE[3],'#4CC9F0']);
+
+  if(isFinal){
+    document.getElementById('endlessBtn').addEventListener('click',()=>{ S.isEndless=true; S.endlessRound=0; S.puzzle=generateEndlessPuzzle(0); S.hintsUsed=0; S.gridLocked=false; S.examplesHidden=false; S.submitLocked=false; renderPuzzleScreen(); });
+    document.getElementById('restartBtn').addEventListener('click',()=>{ resetRun(); renderTitleScreen(); });
+  } else {
+    document.getElementById('continueBtn').addEventListener('click',()=>{
+      S.tier++; S.levelInTier=0;
+      S.puzzle=generatePuzzleForTier(S.tier);
+      S.hintsUsed=0; S.gridLocked=false; S.examplesHidden=false; S.submitLocked=false;
+      renderPuzzleScreen();
+    });
+  }
+}
+
+function spawnBurst(container,count,colors){
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div'); p.className='burst';
+    const sz=randInt(4,9); const ang=Math.random()*Math.PI*2; const dist=randInt(55,140);
+    p.style.cssText='width:'+sz+'px;height:'+sz+'px;left:50%;top:40%;background:'+colors[randInt(0,colors.length-1)]+';--et:translate('+Math.cos(ang)*dist+'px,'+Math.sin(ang)*dist+'px)';
+    container.appendChild(p);
+    setTimeout(()=>p.remove(),750);
+  }
+}
+
+/* =====================================================================
+   SECTION 14: KEYBOARD CONTROLS
+   ===================================================================== */
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('testOutputGrid')) return;
+  if(document.querySelector('.modal-bg')||document.getElementById('ruleRevealPanel')) return;
+  if(e.key>='1'&&e.key<='6'){ const c=parseInt(e.key); if(S.puzzle&&c<=S.puzzle.ctx.paletteCount){ selectColor(c); if(!S.gridLocked) paintCell(S.cursor.r,S.cursor.c); } }
+  else if(e.key==='0'||e.key==='Backspace'){ selectColor(0); if(!S.gridLocked) paintCell(S.cursor.r,S.cursor.c); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); moveCursor(-1,0); }
   else if(e.key==='ArrowDown'){ e.preventDefault(); moveCursor(1,0); }
   else if(e.key==='ArrowLeft'){ e.preventDefault(); moveCursor(0,-1); }
   else if(e.key==='ArrowRight'){ e.preventDefault(); moveCursor(0,1); }
-  else if(e.key==='Enter'){
-    const btn=document.getElementById('submitBtn');
-    if(btn) btn.click();
-  } else if(e.key.toLowerCase()==='p'){
-    const btn=document.getElementById('probeBtn');
-    if(btn && !btn.disabled) btn.click();
-  }
+  else if(e.key==='Enter'){ const sb=document.getElementById('submitBtn'); if(sb&&!sb.disabled) sb.click(); }
+  else if(e.key.toLowerCase()==='h'){ const hb=document.getElementById('hintBtn'); if(hb&&!hb.disabled) hb.click(); }
+  else if(e.key.toLowerCase()==='s'){ const sk=document.getElementById('skipBtn'); if(sk&&!sk.disabled) sk.click(); }
 });
 
-/* ============================================================
-   SECTION 14 — BOOTSTRAP
-   ============================================================ */
-try{
-  const m=localStorage.getItem('axiom_muted');
-  if(m==='1') STATE.muted=true;
-}catch(e){}
-
+/* =====================================================================
+   SECTION 15: BOOTSTRAP
+   ===================================================================== */
+try{ if(localStorage.getItem('axiom_muted')==='1') S.muted=true; }catch(e){}
 renderTitleScreen();
 
 })();
